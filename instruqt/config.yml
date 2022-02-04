@@ -9,11 +9,6 @@ containers:
   image: gcr.io/instruqt/cloud-client
   ports: [80]
   shell: /bin/bash
-gcp_projects:
-- name: gcp-project
-  services:
-  - cloudresourcemanager.googleapis.com
-  - compute.googleapis.com
 aws_accounts:
 - name: TF-WORKSHOP
   managed_policies:

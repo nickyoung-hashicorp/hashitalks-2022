@@ -132,7 +132,7 @@ resource "aws_instance" "vault" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.vault.id
   vpc_security_group_ids      = [aws_security_group.vault.id]
-  iam_instance_profile        = aws_iam_instance_profile.vault_profile.id
+  iam_instance_profile        = aws_iam_instance_profile.vault_profile.name
 
   tags = {
     Name = "${var.prefix}-vault-instance"
@@ -235,7 +235,7 @@ resource "aws_iam_role" "role" {
         "dynamodb:DescribeTable"
       ],
       "Effect": "Allow",
-            "Resource": "arn:aws:dynamodb:*:*:table/vault-backend"
+            "Resource": "arn:aws:dynamodb:*:*:table/*"
         }
     ]
 }
