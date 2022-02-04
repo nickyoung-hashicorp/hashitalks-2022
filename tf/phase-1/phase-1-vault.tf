@@ -163,9 +163,6 @@ resource "null_resource" "configure-vault" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt -y update",
-      "sleep 10",
-      "sudo apt -y install unzip jq",
       "sleep 10",
       "chmod +x *.sh",
       "./install_vault.sh",
