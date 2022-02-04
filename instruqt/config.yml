@@ -4,6 +4,11 @@ virtualmachines:
   image: instruqt-hashicorp/tfc-workstation-1-1-4
   shell: /bin/bash -l
   machine_type: n1-standard-1
+containers:
+- name: cloud-client
+  image: gcr.io/instruqt/cloud-client
+  ports: [80]
+  shell: /bin/bash
 gcp_projects:
 - name: gcp-project
   services:

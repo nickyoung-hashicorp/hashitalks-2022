@@ -18,6 +18,11 @@ tabs:
   type: code
   hostname: workstation
   path: /root/hashitalks-2022/tf
+- title: AWS Console
+  type: service
+  hostname: cloud-client
+  path: /
+  port: 80
 difficulty: basic
 timelimit: 28800
 ---
