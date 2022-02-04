@@ -214,33 +214,27 @@ resource "aws_iam_role" "role" {
 {
     "Version": "2012-10-17",
     "Statement": [
-        {
-            "Sid": "ListAndDescribe",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:List*",
-                "dynamodb:DescribeReservedCapacity*",
-                "dynamodb:DescribeLimits",
-                "dynamodb:DescribeTimeToLive"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "SpecificTable",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:BatchGet*",
-                "dynamodb:DescribeStream",
-                "dynamodb:DescribeTable",
-                "dynamodb:Get*",
-                "dynamodb:Query",
-                "dynamodb:Scan",
-                "dynamodb:BatchWrite*",
-                "dynamodb:CreateTable",
-                "dynamodb:Delete*",
-                "dynamodb:Update*",
-                "dynamodb:PutItem"
-            ],
+    {
+      "Action": [
+        "dynamodb:DescribeLimits",
+        "dynamodb:DescribeTimeToLive",
+        "dynamodb:ListTagsOfResource",
+        "dynamodb:DescribeReservedCapacityOfferings",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:ListTables",
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:CreateTable",
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+        "dynamodb:Scan",
+        "dynamodb:DescribeTable"
+      ],
+      "Effect": "Allow",
             "Resource": "arn:aws:dynamodb:*:*:table/vault-backend"
         }
     ]
