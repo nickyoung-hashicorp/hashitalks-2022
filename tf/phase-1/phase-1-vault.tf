@@ -132,6 +132,7 @@ resource "aws_instance" "vault" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.vault.id
   vpc_security_group_ids      = [aws_security_group.vault.id]
+  iam_instance_profile        = aws_iam_instance_profile.vault_profile.id
 
   tags = {
     Name = "${var.prefix}-vault-instance"
@@ -161,23 +162,23 @@ resource "null_resource" "configure-vault" {
     }
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt -y update",
-      "sleep 10",
-      "sudo apt -y install unzip jq",
-      "sleep 10",
-      "chmod +x *.sh",
-      "./install_vault.sh",
-    ]
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "sudo apt update -y",
+  #     "sleep 10",
+  #     "sudo apt install unzip jq -y",
+  #     "sleep 10",
+  #     "chmod +x *.sh",
+  #     "./install_vault.sh",
+  #   ]
 
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.vault.private_key_pem
-      host        = aws_eip.vault.public_ip
-    }
-  }
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ubuntu"
+  #     private_key = tls_private_key.vault.private_key_pem
+  #     host        = aws_eip.vault.public_ip
+  #   }
+  # }
 }
 
 resource "tls_private_key" "vault" {
@@ -198,4 +199,51 @@ resource "aws_key_pair" "vault" {
       chmod 400 ./privateKey.pem
     EOT
   }
+}
+
+resource "aws_iam_instance_profile" "vault_profile" {
+  name = "vault_profile"
+  role = aws_iam_role.role.name
+}
+
+resource "aws_iam_role" "role" {
+  name = "vault_role"
+  path = "/"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "ListAndDescribe",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:List*",
+                "dynamodb:DescribeReservedCapacity*",
+                "dynamodb:DescribeLimits",
+                "dynamodb:DescribeTimeToLive"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "SpecificTable",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:BatchGet*",
+                "dynamodb:DescribeStream",
+                "dynamodb:DescribeTable",
+                "dynamodb:Get*",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:BatchWrite*",
+                "dynamodb:CreateTable",
+                "dynamodb:Delete*",
+                "dynamodb:Update*",
+                "dynamodb:PutItem"
+            ],
+            "Resource": "arn:aws:dynamodb:*:*:table/vault-backend"
+        }
+    ]
+}
+EOF
 }

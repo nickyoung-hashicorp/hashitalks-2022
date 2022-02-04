@@ -34,6 +34,8 @@ terraform apply -auto-approve
 
 ## Access Vault node with DynamoDB
 ```
+ssh -t ubuntu@$(terraform output -json | jq -r '.vault_ip.value') 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> ~/.bashrc; bash'
+ssh -t ubuntu@$(terraform output -json | jq -r '.vault_ip.value') 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> ~/.bashrc; bash'
 ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
 ```
 
