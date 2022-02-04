@@ -3,7 +3,7 @@ output "aws_vpc_id" {
 }
 
 output "vault_ip" {
-  value = "ssh -i privateKey.pem ubuntu@${aws_eip.vault.public_ip}"
+  value = aws_eip.vault.public_ip
 }
 
 # output "rds_endpoint" {

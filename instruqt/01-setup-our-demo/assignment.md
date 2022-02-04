@@ -17,7 +17,7 @@ tabs:
 - title: Text Editor
   type: code
   hostname: workstation
-  path: /root/hashitalks-2022/terraform-code
+  path: /root/hashitalks-2022/tf
 difficulty: basic
 timelimit: 28800
 ---
@@ -25,11 +25,19 @@ timelimit: 28800
 Deploy Infrastructure
 ==================================
 
+## Provision
 ```
+cd phase-1
 terraform init
 terraform apply -auto-approve
 ```
 
+## Access Vault node with DynamoDB
+```
+ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
+```
+
+## Destroy
 ```
 terraform destroy -auto-approve
 ```

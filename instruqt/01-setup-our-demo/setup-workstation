@@ -31,7 +31,7 @@ git clone https://github.com/nickyoung-hashicorp/hashitalks-2022.git
 
 # Set the user's working directory with the set-workdir script, then in subsequent challenges the user will always start in that directory.
 # mkdir /root/workspace
-set-workdir /root/hashitalks-2022/terraform-code
+set-workdir /root/hashitalks-2022/tf
 
 # You can do anything! Clone an existing repo, or write some terraform from scratch.
 
