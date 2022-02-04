@@ -23,7 +23,7 @@ rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 # Install software
 sudo apt update -y
 sudo apt install awscli -y
-export AWS_DEFAULT_REGION=us-west-2
+export AWS_DEFAULT_REGION=us-west-1
 aws ec2 create-default-vpc
 
 # Clone repo

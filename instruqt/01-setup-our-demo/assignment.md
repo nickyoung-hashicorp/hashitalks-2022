@@ -39,10 +39,76 @@ terraform apply -auto-approve
 
 ## Access Vault node with DynamoDB
 ```
-ssh -t ubuntu@$(terraform output -json | jq -r '.vault_ip.value') 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> ~/.bashrc; bash'
-ssh -t ubuntu@$(terraform output -json | jq -r '.vault_ip.value') 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> ~/.bashrc; bash'
 ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
 ```
+
+## Configure Vault
+```
+chmod +x *.sh
+./install_vault.sh
+```
+
+## Start Vault service
+```
+source ~/.bashrc
+sudo systemctl enable vault
+sudo systemctl start vault
+sudo systemctl status vault
+```
+
+## Export Vault Address and check Vault status
+```
+export VAULT_ADDR='http://127.0.0.1:8200'
+vault status
+```
+
+## Initialize and Unseal Vault
+```
+vault operator init -key-shares=1 -key-threshold=1 -format=json > vault_init.json
+vault operator unseal $(jq -r .unseal_keys_b64[0] < vault_init.json)
+```
+
+## Login with the root token
+```
+vault login $(jq -r .root_token < vault_init.json)
+```
+
+# Enable Secret Engines and Configure
+
+## KV
+```
+vault secrets enable -version=2 kv
+vault kv put kv/hashitalks-secret year=2022 date=02-17-2022
+vault kv get kv/hashitalks-secret
+```
+
+## Transit
+```
+vault secrets enable transit
+vault write -f transit/keys/hashitalks
+vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "2022")
+vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "2022") -format=json > ciphertext.txt
+cat ciphertext.txt | jq -r '.data.ciphertext'
+vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
+```
+
+## PKI
+```
+vault secrets enable pki
+vault write pki/root/generate/internal \
+    common_name=hashitalks.com \
+    ttl=720h
+vault write pki/config/urls \
+    issuing_certificates="http://127.0.0.1:8200/v1/pki/ca" \
+    crl_distribution_points="http://127.0.0.1:8200/v1/pki/crl"
+vault write pki/roles/hashitalks-dot-com \
+    allowed_domains=hashitalks.com \
+    allow_subdomains=true \
+    max_ttl=72h
+vault write pki/issue/hashitalks-dot-com \
+    common_name=www.hashitalks.com
+```
+
 
 ## Destroy
 ```
