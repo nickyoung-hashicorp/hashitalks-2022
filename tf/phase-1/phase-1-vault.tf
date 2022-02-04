@@ -1,5 +1,29 @@
+### Variables ###
+
+variable "prefix" {
+  description = "Prefix that will be added to all taggable resources"
+  default = "prefix"
+}
+
+variable "vpc_id" {
+  description = "ID of VPC in which to deploy resources"
+  default = ""
+}
+
+variable "subnet_prefix" {
+  description = "The address prefix to use for the subnet."
+  default     = "10.0.1.0/24"
+}
+
+variable "instance_type" {
+  description = "Specifies the AWS instance type."
+  default     = "t2.micro"
+}
+
+### Resources ###
+
 resource "aws_subnet" "vault" {
-  vpc_id     = var.vpc_id
+  vpc_id     = aws_vpc.vault.id
   cidr_block = var.subnet_prefix
 
   tags = {
@@ -10,7 +34,7 @@ resource "aws_subnet" "vault" {
 resource "aws_security_group" "vault" {
   name = "${var.prefix}-security-group"
 
-  vpc_id = var.vpc_id
+  vpc_id = aws_vpc.vault.id
 
   ingress {
     from_port   = 8200
@@ -54,7 +78,7 @@ resource "aws_security_group" "vault" {
 }
 
 resource "aws_internet_gateway" "vault" {
-  vpc_id = var.vpc_id
+  vpc_id = aws_vpc.vault.id
 
   tags = {
     Name = "${var.prefix}-internet-gateway"
@@ -62,7 +86,7 @@ resource "aws_internet_gateway" "vault" {
 }
 
 resource "aws_route_table" "vault" {
-  vpc_id = var.vpc_id
+  vpc_id = aws_vpc.vault.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -80,7 +104,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
   }
 
   filter {
@@ -112,6 +136,10 @@ resource "aws_instance" "vault" {
   tags = {
     Name = "${var.prefix}-vault-instance"
   }
+
+  depends_on = [
+    aws_dynamodb_table.vault_dynamo,
+  ]
 }
 
 resource "null_resource" "configure-vault" {
@@ -122,8 +150,8 @@ resource "null_resource" "configure-vault" {
   }
 
   provisioner "file" {
-    source      = "files/"
-    destination = "/home/ubuntu/"
+    source      = "./files/install_vault.sh"
+    destination = "/home/ubuntu/install_vault.sh"
 
     connection {
       type        = "ssh"
@@ -136,8 +164,9 @@ resource "null_resource" "configure-vault" {
   provisioner "remote-exec" {
     inline = [
       "sudo apt -y update",
-      "sleep 15",
-      "sudo apt -y update",
+      "sleep 10",
+      "sudo apt -y install unzip jq",
+      "sleep 10",
       "chmod +x *.sh",
       "./install_vault.sh",
     ]
@@ -162,4 +191,11 @@ locals {
 resource "aws_key_pair" "vault" {
   key_name   = local.private_key_filename
   public_key = tls_private_key.vault.public_key_openssh
+
+  provisioner "local-exec" { # Create "myKey.pem" to your computer!!
+    command = <<-EOT
+      echo '${tls_private_key.vault.private_key_pem}' > ./privateKey.pem
+      chmod 400 ./privateKey.pem
+    EOT
+  }
 }
