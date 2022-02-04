@@ -73,7 +73,7 @@ vault operator unseal $(jq -r .unseal_keys_b64[0] < vault_init.json)
 vault login $(jq -r .root_token < vault_init.json)
 ```
 
-# Enable Secret Engines and Configure
+## Enable and Configure Secret Engines
 
 ## KV
 ```
@@ -109,6 +109,17 @@ vault write pki/issue/hashitalks-dot-com \
     common_name=www.hashitalks.com
 ```
 
+## Database
+```
+vault secrets enable database
+vault write database/config/my-mysql-database \
+    plugin_name=mysql-database-plugin \
+    connection_url="{{username}}:{{password}}@tcp(terraform-20220204234658902100000001.cirlxode7244.us-west-1.rds.amazonaws.com:3306)/" \
+    allowed_roles="hashitalks-role" \
+    username="hashitalks2022" \
+    password="migrateVault!"
+```
+# [[[[[[[[TODO]]]]]]]]]]]]]
 
 ## Destroy
 ```
