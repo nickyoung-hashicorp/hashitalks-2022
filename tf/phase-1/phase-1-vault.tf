@@ -5,31 +5,56 @@ variable "prefix" {
   default = "hashitalks2022"
 }
 
-variable "subnet_prefix" {
-  description = "The address prefix to use for the subnet."
-  default     = "172.31.1.0/24"
+variable "subnet_prefix_a" {
+  description = "The address prefix to use for the subnet in availability zone a"
+  default     = "10.0.1.0/24"
+}
+
+variable "subnet_prefix_b" {
+  description = "The address prefix to use for the subnet in availability zone b"
+  default     = "10.0.2.0/24"
 }
 
 variable "instance_type" {
   description = "Specifies the AWS instance type."
-  default     = "t2.micro"
+  default     = "t2.medium"
 }
 
 ### Resources ###
 
-resource "aws_subnet" "vault" {
-  vpc_id     = aws_default_vpc.vault.id
-  cidr_block = var.subnet_prefix
+resource "aws_subnet" "vault-a" {
+  vpc_id     = aws_vpc.vault.id
+  cidr_block = var.subnet_prefix_a
+  availability_zone = "us-west-1a"
 
   tags = {
-    name = "${var.prefix}-subnet"
+    name = "${var.prefix}-subnet-a"
+  }
+}
+
+resource "aws_subnet" "vault-b" {
+  vpc_id     = aws_vpc.vault.id
+  cidr_block = var.subnet_prefix_b
+  availability_zone = "us-west-1b"
+
+  tags = {
+    name = "${var.prefix}-subnet-b"
+  }
+}
+
+resource "aws_db_subnet_group" "mysql" {
+  name       = "${var.prefix}-db-subnet-group"
+  subnet_ids = [aws_subnet.vault-a.id, aws_subnet.vault-b.id]
+
+  tags = {
+    Name = "${var.prefix}-db-subnet-group"
   }
 }
 
 resource "aws_security_group" "vault" {
   name = "${var.prefix}-security-group"
 
-  vpc_id = aws_default_vpc.vault.id
+  vpc_id = aws_vpc.vault.id
 
   ingress {
     from_port   = 3306
@@ -80,7 +105,7 @@ resource "aws_security_group" "vault" {
 }
 
 resource "aws_internet_gateway" "vault" {
-  vpc_id = aws_default_vpc.vault.id
+  vpc_id = aws_vpc.vault.id
 
   tags = {
     Name = "${var.prefix}-internet-gateway"
@@ -88,7 +113,7 @@ resource "aws_internet_gateway" "vault" {
 }
 
 resource "aws_route_table" "vault" {
-  vpc_id = aws_default_vpc.vault.id
+  vpc_id = aws_vpc.vault.id
 
   route {
     cidr_block = "0.0.0.0/0"

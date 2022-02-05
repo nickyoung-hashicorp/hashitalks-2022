@@ -1,7 +1,10 @@
 ### Resources ###
 
-resource "aws_default_vpc" "vault" {
+resource "aws_vpc" "vault" {
+  cidr_block           = var.address_space
+  enable_dns_hostnames = true
+
   tags = {
-    Name = "Default VPC"
+    name = "${var.prefix}-vault-vpc"
   }
 }
