@@ -37,25 +37,17 @@ terraform init
 terraform apply -auto-approve
 ```
 
-## Save output and copy to Vault node
+## Save Output, Copy to Vault Node, and SSH to Vault Node
 ```
 terraform output -json > output.txt
 scp -i privateKey.pem output.txt ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):/home/ubuntu/output.txt
-```
-
-## Access Vault node with DynamoDB
-```
 ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
 ```
 
-## Configure Vault
+## Configure and Start Vault Service
 ```
 chmod +x *.sh
 ./install_vault.sh
-```
-
-## Start Vault service
-```
 source ~/.bashrc
 sudo systemctl enable vault
 sudo systemctl start vault
@@ -68,14 +60,11 @@ export VAULT_ADDR='http://127.0.0.1:8200'
 vault status
 ```
 
-## Initialize and Unseal Vault
+## Initialize and Unseal Vault, then Login
 ```
 vault operator init -key-shares=1 -key-threshold=1 -format=json > vault_init.json
 vault operator unseal $(jq -r .unseal_keys_b64[0] < vault_init.json)
-```
-
-## Login with the root token
-```
+sleep 5
 vault login $(jq -r .root_token < vault_init.json)
 ```
 
