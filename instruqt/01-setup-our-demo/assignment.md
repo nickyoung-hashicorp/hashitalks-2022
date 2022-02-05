@@ -37,6 +37,12 @@ terraform init
 terraform apply -auto-approve
 ```
 
+## Save output and copy to Vault node
+```
+terraform output -json > output.txt
+scp -i privateKey.pem output.txt ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):/home/ubuntu/output.txt
+```
+
 ## Access Vault node with DynamoDB
 ```
 ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
@@ -112,9 +118,10 @@ vault write pki/issue/hashitalks-dot-com \
 ## Database
 ```
 vault secrets enable database
+export RDS_ENDPOINT=
 vault write database/config/my-mysql-database \
     plugin_name=mysql-database-plugin \
-    connection_url="{{username}}:{{password}}@tcp(terraform-20220204234658902100000001.cirlxode7244.us-west-1.rds.amazonaws.com:3306)/" \
+    connection_url="{{username}}:{{password}}@tcp(terraform-20220205032646469400000001.cirlxode7244.us-west-1.rds.amazonaws.com:3306)/" \
     allowed_roles="hashitalks-role" \
     username="hashitalks2022" \
     password="migrateVault!"
