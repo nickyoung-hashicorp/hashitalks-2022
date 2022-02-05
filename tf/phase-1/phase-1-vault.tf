@@ -183,8 +183,8 @@ resource "null_resource" "configure-vault" {
   }
 
   provisioner "file" {
-    source      = "./files/install_vault.sh"
-    destination = "/home/ubuntu/install_vault.sh"
+    source      = "./files/"
+    destination = "/home/ubuntu/"
 
     connection {
       type        = "ssh"
