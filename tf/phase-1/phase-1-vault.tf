@@ -121,8 +121,13 @@ resource "aws_route_table" "vault" {
   }
 }
 
-resource "aws_route_table_association" "vault" {
-  subnet_id      = aws_subnet.vault.id
+resource "aws_route_table_association" "vault-a" {
+  subnet_id      = aws_subnet.vault-a.id
+  route_table_id = aws_route_table.vault.id
+}
+
+resource "aws_route_table_association" "vault-b" {
+  subnet_id      = aws_subnet.vault-b.id
   route_table_id = aws_route_table.vault.id
 }
 
