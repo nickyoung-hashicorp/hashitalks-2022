@@ -118,6 +118,12 @@ vault write database/config/my-mysql-database \
     allowed_roles="hashitalks-role" \
     username="hashitalks2022" \
     password="migrateVault!"
+vault write database/roles/hashitalks-role \
+    db_name=my-mysql-database \
+    creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
+    default_ttl="8h" \
+    max_ttl="24h"
+vault read database/creds/hashitalks-role
 ```
 # [[[[[[[[TODO]]]]]]]]]]]]]
 
