@@ -8,8 +8,8 @@ echo "Configuring Transit Secrets Engine"
 sleep 1
 vault secrets enable transit
 vault write -f transit/keys/hashitalks
-vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "2022")
-vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "2022") -format=json > ciphertext.txt
+vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "Welcome to HashiTalks 2022!")
+vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "Welcome to HashiTalks 2022!") -format=json > ciphertext.txt
 cat ciphertext.txt | jq -r '.data.ciphertext'
 vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
 
