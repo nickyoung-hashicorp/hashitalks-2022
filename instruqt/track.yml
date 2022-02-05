@@ -1,11 +1,11 @@
 slug: hashitalks-2022-vault-oss-to-enterprise
 id: tqejuzdvgyz3
 type: track
-title: How to Migrate from Vault Open Source to Vault Enterprise
+title: How to Migrate from Vault Open Source to Vault Enterprise with HSM Integration
 teaser: |
-  Demo of Migrating Vault Open Source to Vault Enterprise
+  Demo of Migrating Vault Open Source to Vault Enterprise with HSM Integration
 description: This track is Nick Young's demo for HashiTalks 2022 - How to Migrate
-  from Vault Open Source to Vault Enterprise
+  from Vault Open Source to Vault Enterprise with HSM Integration
 icon: https://storage.googleapis.com/instruqt-hashicorp-tracks/logo/terraform.png
 tags:
 - terraform
@@ -16,4 +16,4 @@ developers:
 - nyoung@hashicorp.com
 private: true
 published: false
-checksum: "15012095636916888214"
+checksum: "17214901726308318867"
