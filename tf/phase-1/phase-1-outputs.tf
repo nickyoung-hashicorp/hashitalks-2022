@@ -6,6 +6,6 @@ output "vault_ip" {
   value = aws_eip.vault.public_ip
 }
 
-# output "rds_endpoint" {
-#   value = aws_db_instance.vault.endpoint
-# }
+output "rds_endpoint" {
+  value = aws_db_instance.vault.endpoint
+}
