@@ -262,7 +262,7 @@ resource "aws_iam_policy" "vault-dynamodb-policy" {
         "dynamodb:DescribeTable"
       ],
       "Effect": "Allow",
-      "Resource": [ "arn:aws:dynamodb:*:*:table/vault-cackend" ]
+      "Resource": [ "arn:aws:dynamodb:*:*:table/vault-backend" ]
     }
 ]
 }
