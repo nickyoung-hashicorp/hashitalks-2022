@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "Configuring Key-Value Secrets Engine"
 sleep 1
 vault secrets enable -version=2 kv

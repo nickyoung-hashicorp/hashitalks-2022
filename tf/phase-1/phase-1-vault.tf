@@ -10,7 +10,7 @@ variable "subnet_prefix_a" {
   default     = "10.0.1.0/24"
 }
 
-variable "subnet_prefix_c" {
+variable "subnet_prefix_b" {
   description = "The address prefix to use for the subnet in availability zone b"
   default     = "10.0.2.0/24"
 }
@@ -25,26 +25,26 @@ variable "instance_type" {
 resource "aws_subnet" "vault-a" {
   vpc_id     = aws_vpc.vault.id
   cidr_block = var.subnet_prefix_a
-  availability_zone = "us-west-1a"
+  availability_zone = "us-west-2a"
 
   tags = {
     name = "${var.prefix}-subnet-a"
   }
 }
 
-resource "aws_subnet" "vault-c" {
+resource "aws_subnet" "vault-b" {
   vpc_id     = aws_vpc.vault.id
-  cidr_block = var.subnet_prefix_c
-  availability_zone = "us-west-1c"
+  cidr_block = var.subnet_prefix_b
+  availability_zone = "us-west-2b"
 
   tags = {
-    name = "${var.prefix}-subnet-c"
+    name = "${var.prefix}-subnet-b"
   }
 }
 
 resource "aws_db_subnet_group" "mysql" {
   name       = "${var.prefix}-db-subnet-group"
-  subnet_ids = [aws_subnet.vault-a.id, aws_subnet.vault-c.id]
+  subnet_ids = [aws_subnet.vault-a.id, aws_subnet.vault-b.id]
 
   tags = {
     Name = "${var.prefix}-db-subnet-group"
@@ -126,8 +126,8 @@ resource "aws_route_table_association" "vault-a" {
   route_table_id = aws_route_table.vault.id
 }
 
-resource "aws_route_table_association" "vault-c" {
-  subnet_id      = aws_subnet.vault-c.id
+resource "aws_route_table_association" "vault-b" {
+  subnet_id      = aws_subnet.vault-b.id
   route_table_id = aws_route_table.vault.id
 }
 
