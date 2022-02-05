@@ -1,5 +1,5 @@
-output "aws_default_vpc_id" {
-  value = aws_default_vpc.vault.id
+output "aws_vpc_id" {
+  value = aws_vpc.vault.id
 }
 
 output "vault_ip" {
