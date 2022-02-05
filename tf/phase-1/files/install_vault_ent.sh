@@ -17,8 +17,8 @@ VAULT_DATA_DIR=/opt/vault
 
 # CALCULATED VARS
 VAULT_PATH=${VAULT_DIR}/vault
-VAULT_ZIP="vault_${VAULT_VERSION}_linux_amd64.zip"
-VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}/${VAULT_ZIP}"
+VAULT_ZIP="vault_${VAULT_VERSION}+ent_linux_amd64.zip"
+VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}+ent/${VAULT_ZIP}"
 
 # CHECK DEPENDANCIES AND SET NET RETRIEVAL TOOL
 if ! unzip -h 2&> /dev/null; then
