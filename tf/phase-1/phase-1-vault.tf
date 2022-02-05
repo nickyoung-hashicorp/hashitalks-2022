@@ -193,24 +193,6 @@ resource "null_resource" "configure-vault" {
       host        = aws_eip.vault.public_ip
     }
   }
-
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "sudo apt update -y",
-  #     "sleep 10",
-  #     "sudo apt install unzip jq -y",
-  #     "sleep 10",
-  #     "chmod +x *.sh",
-  #     "./install_vault.sh",
-  #   ]
-
-  #   connection {
-  #     type        = "ssh"
-  #     user        = "ubuntu"
-  #     private_key = tls_private_key.vault.private_key_pem
-  #     host        = aws_eip.vault.public_ip
-  #   }
-  # }
 }
 
 resource "tls_private_key" "vault" {
