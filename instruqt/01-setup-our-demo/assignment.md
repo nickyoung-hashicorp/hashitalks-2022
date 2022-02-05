@@ -84,7 +84,7 @@ ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ent_ip.val
 ## Configure and Start Vault Enterprise Service
 ```
 chmod +x *.sh
-./install_vault.sh
+./install_vault_ent.sh
 ```
 
 ## Check Vault status for `Initialized = False`
