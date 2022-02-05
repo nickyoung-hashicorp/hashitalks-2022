@@ -23,7 +23,7 @@ resource "aws_instance" "vault-ent" {
 }
 
 resource "null_resource" "configure-vault-ent" {
-  depends_on = [aws_eip_association.vault]
+  depends_on = [aws_eip_association.vault-ent]
 
   triggers = {
     build_number = timestamp()

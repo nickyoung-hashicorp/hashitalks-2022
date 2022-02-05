@@ -41,6 +41,7 @@ terraform apply -auto-approve
 ```
 terraform output -json > output.txt
 scp -i privateKey.pem output.txt ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):/home/ubuntu/output.txt
+scp -i privateKey.pem privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):/home/ubuntu/privateKey.pem
 ```
 
 ## SSH to Vault OSS Node
@@ -71,6 +72,13 @@ vault status
 ./config_vault.sh
 ```
 
+## Copy files from Vault OSS to Enterprise Node
+```
+scp -i privateKey.pem vault_init.json ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):/home/ubuntu/vault_init.json
+scp -i privateKey.pem ciphertext.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):/home/ubuntu/ciphertext.txt
+scp -i privateKey.pem output.txt ubuntu@$(terraform output -json | jq -r '.vault_ent_ip.value'):/home/ubuntu/output.txt
+```
+
 ## Exit Vault OSS Node
 ```
 exit
@@ -87,13 +95,45 @@ chmod +x *.sh
 ./install_vault_ent.sh
 ```
 
-## Check Vault status for `Initialized = False`
+## Check Vault status for `Initialized = false`
 ```
 source ~/.bashrc
 vault status
 ```
 
-## Migrate / Copy Vault OSS Data
+## Copy Vault OSS Data and Start Vault Enterprise Service
 ```
-vault operator migrate -config migrate.hcl
+sudo vault operator migrate -config migrate.hcl
+sudo chown -R vault:vault /opt/vault/
+sudo systemctl start vault
+sudo systemctl status vault
+```
+
+## Unseal Vault Ent Node with Original Unseal Key
+```
+vault operator unseal $(jq -r .unseal_keys_b64[0] < vault_init.json)
+sleep 5
+vault status
+```
+
+## Login with Original Root Token
+```
+vault login $(jq -r .root_token < vault_init.json)
+```
+
+## Test for Expected Results
+```
+sleep 2
+echo "RETRIEVE KEY-VALUE"
+vault kv get kv/hashitalks-secret
+sleep 2
+echo "DECRYPT CIPHERTEXT"
+vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
+sleep 2
+echo "GENERATE CERTIFICATE"
+vault write pki/issue/hashitalks-dot-com \
+    common_name=www.hashitalks.com
+sleep 2
+echo "GENERATE DYNAMIC MYSQL CREDENTIALS"
+vault read database/creds/hashitalks-role
 ```
