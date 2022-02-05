@@ -81,25 +81,24 @@ vault login $(jq -r .root_token < vault_init.json)
 
 ## Enable and Configure Secret Engines
 
-## KV
 ```
+echo "Configuring Key-Value Secrets Engine"
+sleep 1
 vault secrets enable -version=2 kv
 vault kv put kv/hashitalks-secret year=2022 date=02-17-2022
 vault kv get kv/hashitalks-secret
-```
 
-## Transit
-```
+echo "Configuring Transit Secrets Engine"
+sleep 1
 vault secrets enable transit
 vault write -f transit/keys/hashitalks
 vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "2022")
 vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "2022") -format=json > ciphertext.txt
 cat ciphertext.txt | jq -r '.data.ciphertext'
 vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
-```
 
-## PKI
-```
+echo "Configuring PKI Secrets Engine"
+sleep 1
 vault secrets enable pki
 vault write pki/root/generate/internal \
     common_name=hashitalks.com \
@@ -113,15 +112,14 @@ vault write pki/roles/hashitalks-dot-com \
     max_ttl=72h
 vault write pki/issue/hashitalks-dot-com \
     common_name=www.hashitalks.com
-```
 
-## Database
-```
+echo "Configuring Database Secrets Engine"
+sleep 1
 vault secrets enable database
 export RDS_ENDPOINT=
 vault write database/config/my-mysql-database \
     plugin_name=mysql-database-plugin \
-    connection_url="{{username}}:{{password}}@tcp(terraform-20220205032646469400000001.cirlxode7244.us-west-1.rds.amazonaws.com:3306)/" \
+    connection_url="{{username}}:{{password}}@tcp($(cat output.txt | jq -r '.rds_endpoint.value'))/" \
     allowed_roles="hashitalks-role" \
     username="hashitalks2022" \
     password="migrateVault!"
@@ -131,10 +129,7 @@ vault write database/roles/hashitalks-role \
     default_ttl="8h" \
     max_ttl="24h"
 vault read database/creds/hashitalks-role
+export LEASE_ID=$(vault read database/creds/hashitalks-role -format=json | jq -r .lease_id)
+vault write sys/leases/lookup lease_id=$LEASE_ID
 ```
-# [[[[[[[[TODO]]]]]]]]]]]]]
 
-## Destroy
-```
-terraform destroy -auto-approve
-```
