@@ -37,6 +37,13 @@ resource "aws_security_group" "vault" {
   vpc_id = aws_vpc.vault.id
 
   ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 8200
     to_port     = 8201
     protocol    = "tcp"
