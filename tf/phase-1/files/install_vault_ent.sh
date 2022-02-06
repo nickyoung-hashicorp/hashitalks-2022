@@ -88,6 +88,7 @@ storage "raft" {
   node_id = "vault-1"
 }
 
+# Enterprise License Auto-Load
 license_path = "/home/ubuntu/vault.hclic"
 VAULTCONFIG
 
