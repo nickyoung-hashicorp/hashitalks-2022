@@ -4,21 +4,21 @@
 sudo apt update -y
 sudo apt install unzip jq -y
 
-echo "Installing Vault Enterprise"
-# Setup vault enterprise as server
+# Setup Vault Enterprise+HSM
 set -e
 
 # USER VARS
-VAULT_VERSION="1.9.3"
 NODE_NAME="${1:-$(hostname -s)}"
+VAULT_VERSION="1.9.3"
 VAULT_DIR=/usr/local/bin
 VAULT_CONFIG_DIR=/etc/vault.d
 VAULT_DATA_DIR=/opt/vault
 
 # CALCULATED VARS
 VAULT_PATH=${VAULT_DIR}/vault
-VAULT_ZIP="vault_${VAULT_VERSION}+ent_linux_amd64.zip"
-VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}+ent/${VAULT_ZIP}"
+VAULT_ZIP="vault_${VAULT_VERSION}+ent.hsm_linux_amd64.zip"
+VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}+ent.hsm/${VAULT_ZIP}"
+
 
 # CHECK DEPENDANCIES AND SET NET RETRIEVAL TOOL
 if ! unzip -h 2&> /dev/null; then
@@ -35,7 +35,6 @@ else
 fi
 
 set +e
-
 # try to get private IP
 pri_ip=$(hostname -I 2> /dev/null | awk '{print $1}')
 set -e
@@ -75,7 +74,7 @@ sudo tee "${VAULT_CONFIG_DIR}/vault.hcl" > /dev/null <<VAULTCONFIG
 ui = true
 api_addr = ""
 cluster_addr = ""
-cluster_name="vault-enterprise"
+cluster_name="vault-enterprise-hsm"
 
 listener "tcp" {
   address          = "0.0.0.0:8200"
@@ -90,6 +89,16 @@ storage "raft" {
 
 # Enterprise License Auto-Load
 license_path = "/home/ubuntu/vault.hclic"
+
+# AWS CloudHSM
+seal "pkcs11" {
+  lib = "/opt/cloudhsm/lib/libcloudhsm_pkcs11.so"
+  slot = "1"
+  pin = "vault:Password1"
+  key_label = "hsm_demo"
+  hmac_key_label = "hsm_hmac_demo"
+  generate_key = "true"
+}
 VAULTCONFIG
 
 sudo sed -i "s|NODENAME|$NODE_NAME|g" "${VAULT_CONFIG_DIR}/vault.hcl"
@@ -108,6 +117,8 @@ Documentation=https://www.vaultproject.io/docs/
 Requires=network-online.target
 After=network-online.target
 ConditionFileNotEmpty=/etc/vault.d/vault.hcl
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
 User=vault
@@ -121,16 +132,18 @@ AmbientCapabilities=CAP_IPC_LOCK
 Capabilities=CAP_IPC_LOCK+ep
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
-ExecStart=VAULTBINDIR/vault server -config=/etc/vault.d/vault.hcl
+ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30
+StartLimitInterval=60
 StartLimitIntervalSec=60
 StartLimitBurst=3
 LimitNOFILE=65536
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target
