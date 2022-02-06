@@ -34,7 +34,6 @@ vault write pki/issue/hashitalks-dot-com \
 echo "Configuring Database Secrets Engine"
 sleep 1
 vault secrets enable database
-export RDS_ENDPOINT=
 vault write database/config/my-mysql-database \
     plugin_name=mysql-database-plugin \
     connection_url="{{username}}:{{password}}@tcp($(cat output.txt | jq -r '.rds_endpoint.value'))/" \
@@ -46,6 +45,5 @@ vault write database/roles/hashitalks-role \
     creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
     default_ttl="8h" \
     max_ttl="24h"
-vault read database/creds/hashitalks-role
-export LEASE_ID=$(vault read database/creds/hashitalks-role -format=json | jq -r .lease_id)
-vault write sys/leases/lookup lease_id=$LEASE_ID
+echo "Generate MySQL Database Credential and store lease ID"
+vault read database/creds/hashitalks-role -format=json | jq -r '.lease_id' > lease_id.txt

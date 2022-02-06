@@ -87,6 +87,8 @@ storage "raft" {
   path    = "/opt/vault"
   node_id = "vault-1"
 }
+
+license_file = "/home/ubuntu/vault.hclic"
 VAULTCONFIG
 
 sudo sed -i "s|NODENAME|$NODE_NAME|g" "${VAULT_CONFIG_DIR}/vault.hcl"

@@ -40,8 +40,7 @@ terraform apply -auto-approve
 ## Save Output, Copy to Vault Node, and SSH to Vault Node
 ```
 terraform output -json > output.txt
-scp -i privateKey.pem output.txt ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):/home/ubuntu/output.txt
-scp -i privateKey.pem privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):/home/ubuntu/privateKey.pem
+scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):~
 ```
 
 ## SSH to Vault OSS Node
@@ -74,9 +73,7 @@ vault status
 
 ## Copy files from Vault OSS to Enterprise Node
 ```
-scp -i privateKey.pem vault_init.json ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):/home/ubuntu/vault_init.json
-scp -i privateKey.pem ciphertext.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):/home/ubuntu/ciphertext.txt
-scp -i privateKey.pem output.txt ubuntu@$(terraform output -json | jq -r '.vault_ent_ip.value'):/home/ubuntu/output.txt
+scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
 ```
 
 ## Exit Vault OSS Node
@@ -135,5 +132,8 @@ vault write pki/issue/hashitalks-dot-com \
     common_name=www.hashitalks.com
 sleep 2
 echo "GENERATE DYNAMIC MYSQL CREDENTIALS"
-vault read database/creds/hashitalks-role
+vault read database/creds/hashitalks-role -format=json | jq -r '.lease_id' > lease_id.txt
+sleep 2
+echo "LOOKUP FIRST MYSQL CREDENTIAL LEASE"
+vault write sys/leases/lookup lease_id=$(cat lease_id.txt)
 ```
