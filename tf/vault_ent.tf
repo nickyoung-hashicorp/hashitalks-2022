@@ -30,7 +30,7 @@ resource "null_resource" "configure-vault-ent" {
   }
 
   provisioner "file" {
-    source      = "./files/"
+    source      = "./files/vault_ent/"
     destination = "/home/ubuntu/"
 
     connection {

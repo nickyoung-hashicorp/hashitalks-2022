@@ -29,7 +29,7 @@ resource "null_resource" "configure-vault-hsm" {
   }
 
   provisioner "file" {
-    source      = "./files/"
+    source      = "./files/vault_hsm/"
     destination = "/home/ubuntu/"
 
     connection {

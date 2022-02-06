@@ -30,122 +30,109 @@ timelimit: 28800
 Deploy Infrastructure
 ==================================
 
-## Provision
+# Provision Infrastructure
 ```
 terraform init
 terraform apply -auto-approve
 ```
 
-## Save Output, Copy to Vault Node, and SSH to Vault Node
+# Vault OSS + DynamoDB
+
+### Save Output, Copy to Vault OSS Node, and Access by SSH
 ```
 terraform output -json > output.txt
-scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):~
-```
-
-## Copy AWS Credentials to Vault HSM Node
-```
+scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value'):~
 scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-## SSH to Vault OSS Node
+### SSH to Vault OSS Node
 ```
-ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
+ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value')
 ```
 
-## Configure and Start Vault Service
+### Configure and Start Vault Service
 ```
 chmod +x *.sh
 ./install_vault.sh
 ```
 
-## Check Vault status
+### Check Vault status
 ```
 source ~/.bashrc
 vault status
 ```
 
-## Initialize and Unseal Vault, then Login
+### Initialize and Unseal Vault, then Login
 ```
 ./run_vault.sh
 ```
 
-## Enable and Configure Secret Engines
+### Enable and Configure Secret Engines
 
 ```
 ./config_vault.sh
 ```
 
-## Copy files from Vault OSS to Vault Enterprise and Vault HSM Nodes
+### Copy files from Vault OSS to Vault Enterprise and Vault HSM Node
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-## Stop Vault Service and Exit
+### Stop Vault Service and Exit
 ```
 sudo systemctl stop vault
 exit
 ```
 
-## SSH to Vault Enterprise Node
+# Vault Enterprise with Integrated Storage
+
+### SSH to Vault Enterprise Node
 ```
-ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ent_ip.value')
+ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value')
 ```
 
-## Configure and Start Vault Enterprise Service
+### Configure and Start Vault Enterprise Service
 ```
 chmod +x *.sh
 ./install_vault_ent.sh
 ```
 
-## Copy Vault OSS Data and Start Vault Enterprise Service
+### Migrate Vault OSS Data and Start Vault Enterprise Service
 ```
 source ~/.bashrc
-sudo vault operator migrate -config migrate.hcl
-sudo chown -R vault:vault /opt/vault/
-sudo systemctl start vault
-sudo systemctl status vault
+./migrate_data.sh
 ```
 
-## Unseal Vault Ent Node with Original Unseal Key
+### Unseal Vault Ent Node with Original Unseal Key
 ```
-vault operator unseal $(jq -r .unseal_keys_b64[0] < vault_init.json)
-sleep 5
-vault status
+./unseal_vault_ent.sh
 ```
 
-## Login with Original Root Token
+### Login with Original Root Token, then Validate
 ```
-vault login $(jq -r .root_token < vault_init.json)
-```
-
-## Test for Expected Results
-```
-sleep 2
-echo "RETRIEVE KEY-VALUE"
-vault kv get kv/hashitalks-secret
-sleep 2
-echo "DECRYPT CIPHERTEXT"
-vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
-sleep 2
-echo "GENERATE CERTIFICATE"
-vault write pki/issue/hashitalks-dot-com \
-    common_name=www.hashitalks.com
-sleep 2
-echo "GENERATE DYNAMIC MYSQL CREDENTIALS"
-vault read database/creds/hashitalks-role -format=json | jq -r '.lease_id' > lease_id.txt
-sleep 2
-echo "LOOKUP FIRST MYSQL CREDENTIAL LEASE"
-vault write sys/leases/lookup lease_id=$(cat lease_id.txt)
+./test_vault_ent.sh
 ```
 
-## SSH to Vault HSM Node
+### Exit Vault Enterprise Node
 ```
-ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_hsm_ip.value')
+exit
+```
+
+# Vault Enterprise with HSM Integration
+
+### SSH to Vault HSM Node
+```
+ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value')
 ```
 
 ## Configure and Start Vault Service with HSM Integration
 ```
 chmod +x *.sh
+./config_vault_hsm.sh
+```
+
+```
 ./install_vault_hsm.sh
+source ~/.bashrc
 ```

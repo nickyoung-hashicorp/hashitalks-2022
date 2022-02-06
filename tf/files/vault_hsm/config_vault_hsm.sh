@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 sudo apt install awscli -y
 
 export HSM_CLUSTER_ID=$(cat output.txt | jq -r .hsm_cluster_id.value)
@@ -9,9 +11,12 @@ export AWS_SECRET_ACCESS_KEY=$(cat secret_key.txt)
 aws cloudhsmv2 describe-clusters --filters clusterIds=${HSM_CLUSTER_ID} \
   --output text --query 'Clusters[].Certificates.ClusterCsr' > ClusterCsr.csr
 
-openssl genrsa -aes256 -out customerCA.key 2048
+# openssl genrsa -aes256 -out customerCA.key 2048
+openssl genrsa -aes256 -out customerCA.key -passout pass:hashitalks 2048
 
-openssl req -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
+
+# openssl req -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
+openssl req -passout pass:hashitalks -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
 
 openssl x509 -req -days 3652 -in ClusterCsr.csr \
   -CA customerCA.crt -CAkey customerCA.key -CAcreateserial \

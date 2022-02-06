@@ -183,7 +183,7 @@ resource "null_resource" "configure-vault" {
   }
 
   provisioner "file" {
-    source      = "./files/"
+    source      = "./files/vault_oss/"
     destination = "/home/ubuntu/"
 
     connection {
