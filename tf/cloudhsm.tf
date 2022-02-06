@@ -53,6 +53,5 @@ resource "aws_cloudhsm_v2_cluster" "cloudhsm_v2_cluster" {
 
 resource "aws_cloudhsm_v2_hsm" "cloudhsm_v2_hsm" {
   cluster_id        = aws_cloudhsm_v2_cluster.cloudhsm_v2_cluster.cluster_id
-  availability_zone = var.availability_zone
   subnet_id = aws_subnet.vault-a.id
 }
