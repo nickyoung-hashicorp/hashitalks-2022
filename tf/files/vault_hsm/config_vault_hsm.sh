@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+sudo apt update -y
 sudo apt install awscli -y
 
 export HSM_CLUSTER_ID=$(cat output.txt | jq -r .hsm_cluster_id.value)

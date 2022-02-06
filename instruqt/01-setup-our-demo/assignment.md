@@ -42,6 +42,12 @@ terraform apply -auto-approve
 ```
 terraform output -json > output.txt
 scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value'):~
+```
+
+### Save AWS Credentials to Vault Enterprise Node
+```
+echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
+echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
 scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
@@ -76,6 +82,8 @@ vault status
 ### Copy files from Vault OSS to Vault Enterprise and Vault HSM Node
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
+```
+```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
@@ -126,8 +134,11 @@ exit
 ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value')
 ```
 
-## Configure and Start Vault Service with HSM Integration
+### Configure and Start Vault Service with HSM Integration
 ```
+cat access_key.txt >> ~/.bashrc
+cat secret_key.txt >> ~/.bashrc
+source ~/.bashrc
 chmod +x *.sh
 ./config_vault_hsm.sh
 ```
