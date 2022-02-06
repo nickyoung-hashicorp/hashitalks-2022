@@ -28,6 +28,35 @@ aws cloudhsmv2 describe-clusters \
       --query 'Clusters[].State'
 
 #Finds the IP address of the CloudHSM
-aws cloudhsmv2 describe-clusters \
+export HSM_IP=$(aws cloudhsmv2 describe-clusters \
       --filters clusterIds=${HSM_CLUSTER_ID} \
-      --query 'Clusters[].Hsms[] .EniIp'
+      --query 'Clusters[].Hsms[] .EniIp' | jq -r .[])
+
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client_latest_u18.04_amd64.deb
+
+sudo apt install ./cloudhsm-client_latest_u18.04_amd64.deb -y
+
+sudo /opt/cloudhsm/bin/configure -a $HSM_IP
+
+sudo mv customerCA.crt /opt/cloudhsm/etc/customerCA.crt
+
+/opt/cloudhsm/bin/cloudhsm_mgmt_util /opt/cloudhsm/etc/cloudhsm_mgmt_util.cfg
+
+loginHSM PRECO admin password
+
+changePswd PRECO admin hashivault
+
+logoutHSM
+
+loginHSM CO admin hashivault
+
+createUser CU vault Password1
+
+quit
+
+# Install PKCS #11 Library
+sudo service cloudhsm-client start
+
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client-pkcs11_latest_u18.04_amd64.deb
+
+sudo apt install ./cloudhsm-client-pkcs11_latest_u18.04_amd64.deb -y
