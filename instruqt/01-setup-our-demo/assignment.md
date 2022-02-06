@@ -42,6 +42,11 @@ terraform output -json > output.txt
 scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value'):~
 ```
 
+## Copy AWS Credentials to Vault HSM Node
+```
+scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
+```
+
 ## SSH to Vault OSS Node
 ```
 ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ip.value')
@@ -70,13 +75,15 @@ vault status
 ./config_vault.sh
 ```
 
-## Copy files from Vault OSS to Enterprise Node
+## Copy files from Vault OSS to Vault Enterprise and Vault HSM Nodes
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
+scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-## Exit Vault OSS Node
+## Stop Vault Service and Exit
 ```
+sudo systemctl stop vault
 exit
 ```
 
@@ -89,11 +96,11 @@ ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_ent_ip.val
 ```
 chmod +x *.sh
 ./install_vault_ent.sh
-source ~/.bashrc
 ```
 
 ## Copy Vault OSS Data and Start Vault Enterprise Service
 ```
+source ~/.bashrc
 sudo vault operator migrate -config migrate.hcl
 sudo chown -R vault:vault /opt/vault/
 sudo systemctl start vault
@@ -130,4 +137,15 @@ vault read database/creds/hashitalks-role -format=json | jq -r '.lease_id' > lea
 sleep 2
 echo "LOOKUP FIRST MYSQL CREDENTIAL LEASE"
 vault write sys/leases/lookup lease_id=$(cat lease_id.txt)
+```
+
+## SSH to Vault HSM Node
+```
+ssh -i privateKey.pem ubuntu@$(terraform output -json | jq -r '.vault_hsm_ip.value')
+```
+
+## Configure and Start Vault Service with HSM Integration
+```
+chmod +x *.sh
+./install_vault_hsm.sh
 ```
