@@ -22,52 +22,11 @@ rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # Install software
 sudo apt update -y
-sudo apt install awscli -y
-export AWS_DEFAULT_REGION=us-west-1
-aws ec2 create-default-vpc
 
 # Clone repo
 git clone https://github.com/nickyoung-hashicorp/hashitalks-2022.git
 
-# Set the user's working directory with the set-workdir script, then in subsequent challenges the user will always start in that directory.
-# mkdir /root/workspace
+# Set the user's working directory
 set-workdir /root/hashitalks-2022/tf
-
-# You can do anything! Clone an existing repo, or write some terraform from scratch.
-
-# A few example repos to get you started:
-# git clone https://github.com/hashicorp/hashicat-aws
-# git clone https://github.com/hashicorp/hashicat-azure
-# git clone https://github.com/hashicorp/hashicat-gcp
-
-# Set the user's working directory with the set-workdir script, then in subsequent challenges the user will always start in that directory.
-# /bin/set-workdir /root/my-git-repo
-
-# Create a catch-up script that enables the user to fast-forward
-
-# Create a remote_backend.tf file
-# cat <<-EOF > /root/workspace/remote_backend.tf
-# terraform {
-#   backend "remote" {
-#     hostname = "app.terraform.io"
-#     organization = "YOURORGANIZATION"
-#     workspaces {
-#       name = "YOURWORKSPACE"
-#     }
-#   }
-# }
-# EOF
-
-# Set up Terraform credentials file
-# mkdir -p /root/.terraform.d
-# cat <<-EOF > /root/.terraform.d/credentials.tfrc.json
-# {
-#   "credentials": {
-#     "app.terraform.io": {
-#       "token": "YOURTOKEN"
-#     }
-#   }
-# }
-# EOF
 
 exit 0

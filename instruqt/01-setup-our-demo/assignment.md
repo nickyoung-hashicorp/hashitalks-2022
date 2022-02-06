@@ -32,7 +32,6 @@ Deploy Infrastructure
 
 ## Provision
 ```
-cd phase-1
 terraform init
 terraform apply -auto-approve
 ```
