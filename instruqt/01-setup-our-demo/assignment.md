@@ -11,7 +11,16 @@ notes:
   contents: |
     How to Migrate from Vault Open Source to Vault Enterprise
 tabs:
-- title: Shell
+- title: Workstation
+  type: terminal
+  hostname: workstation
+- title: Vault OSS with DynamoDB
+  type: terminal
+  hostname: workstation
+- title: Vault Enterprise
+  type: terminal
+  hostname: workstation
+- title: Vault Enterprise with HSM
   type: terminal
   hostname: workstation
 - title: Text Editor
