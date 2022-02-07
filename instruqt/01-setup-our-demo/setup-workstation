@@ -29,4 +29,7 @@ git clone https://github.com/nickyoung-hashicorp/hashitalks-2022.git
 # Set the user's working directory
 set-workdir /root/hashitalks-2022/tf
 
+# Avoid SSH prompt
+sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config
+
 exit 0
