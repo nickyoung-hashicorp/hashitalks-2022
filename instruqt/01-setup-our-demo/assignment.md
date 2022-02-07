@@ -44,7 +44,7 @@ terraform output -json > output.txt
 scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value'):~
 ```
 
-### Save AWS Credentials to Vault Enterprise Node
+### Save AWS Credentials to Vault HSM Node
 ```
 echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
 echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
