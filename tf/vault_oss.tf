@@ -196,7 +196,7 @@ resource "null_resource" "configure-vault" {
 
     provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking accept-new/g' /etc/ssh/ssh_config",
+      "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
     ]
 
     connection {
