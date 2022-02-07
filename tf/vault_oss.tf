@@ -196,7 +196,7 @@ resource "null_resource" "configure-vault" {
 
     provisioner "remote-exec" {
     inline = [
-      "ssh -oStrictHostKeyChecking=no $host uptime",
+      "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking accept-new/g' /etc/ssh/ssh_config",
     ]
 
     connection {
