@@ -36,59 +36,61 @@ difficulty: basic
 timelimit: 28800
 ---
 
-Deploy Infrastructure
-==================================
+# Deploy Infrastructure
+=======================
 
-# Provision Infrastructure
+## Provision Infrastructure
 ```
 terraform init
 terraform apply -auto-approve
 ```
 
-# Vault OSS + DynamoDB
-
-### Save Output, Copy to Vault OSS Node, and Access by SSH
+## Save Output, Copy to Vault OSS Node, and Access by SSH
 ```
 terraform output -json > output.txt
 scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value'):~
 ```
 
-### Save AWS Credentials to Vault HSM Node
+## Save AWS Credentials to Vault HSM Node
 ```
 echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
 echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
 scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-### SSH to Vault OSS Node
+# Vault OSS + DynamoDB
+=======================
+Navigate to the `Vault OSS with DynamoDB` tab.
+
+## SSH to Vault OSS Node
 ```
 ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value')
 ```
 
-### Configure and Start Vault Service
+## Configure and Start Vault Service
 ```
 chmod +x *.sh
 ./install_vault.sh
 ```
 
-### Check Vault status
+## Check Vault status
 ```
 source ~/.bashrc
 vault status
 ```
 
-### Initialize and Unseal Vault, then Login
+## Initialize and Unseal Vault, then Login
 ```
 ./run_vault.sh
 ```
 
-### Enable and Configure Secret Engines
+## Enable and Configure Secret Engines
 
 ```
 ./config_vault.sh
 ```
 
-### Copy files from Vault OSS to Vault Enterprise and Vault HSM Node
+## Copy files from Vault OSS to Vault Enterprise and Vault HSM Node
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
 ```
@@ -96,63 +98,154 @@ scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubu
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-### Stop Vault Service and Exit
+## Stop Vault Service
 ```
 sudo systemctl stop vault
-exit
 ```
 
 # Vault Enterprise with Integrated Storage
+==========================================
+Navigate to the `Vault Enterprise` tab.
 
-### SSH to Vault Enterprise Node
+## SSH to Vault Enterprise Node
 ```
 ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value')
 ```
 
-### Configure and Start Vault Enterprise Service
+## Configure and Start Vault Enterprise Service
 ```
 chmod +x *.sh
 ./install_vault_ent.sh
 ```
 
-### Migrate Vault OSS Data and Start Vault Enterprise Service
+## Migrate Vault OSS Data and Start Vault Enterprise Service
 ```
 source ~/.bashrc
 ./migrate_data.sh
 ```
 
-### Unseal Vault Ent Node with Original Unseal Key
+## Unseal Vault Ent Node with Original Unseal Key
 ```
 ./unseal_vault_ent.sh
 ```
 
-### Login with Original Root Token, then Validate
+## Login with Original Root Token, then Validate
 ```
 ./test_vault_ent.sh
 ```
 
-### Exit Vault Enterprise Node
-```
-exit
-```
-
 # Vault Enterprise with HSM Integration
+=======================================
+Navigate to the `Vault Enterprise with HSM` tab.
 
-### SSH to Vault HSM Node
+## SSH to Vault HSM Node
 ```
 ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value')
 ```
 
-### Configure and Start Vault Service with HSM Integration
+## Configure and Start Vault Service with HSM Integration
 ```
-cat access_key.txt >> ~/.bashrc
-cat secret_key.txt >> ~/.bashrc
-source ~/.bashrc
 chmod +x *.sh
-./config_vault_hsm.sh
+./insert_cloud_creds.sh
+source ~/.bashrc
 ```
 
+## Install awscli
+```
+sudo apt update -y
+sudo apt install awscli jq -y
+```
+
+## Export Environment Variables
+```
+export HSM_CLUSTER_ID=$(cat output.txt | jq -r .hsm_cluster_id.value)
+export AWS_DEFAULT_REGION=us-west-2
+```
+
+## Generate CSR
+```
+aws cloudhsmv2 describe-clusters --filters clusterIds=${HSM_CLUSTER_ID} \
+  --output text --query 'Clusters[].Certificates.ClusterCsr' > ClusterCsr.csr
+```
+
+## Generate Key
+```
+openssl genrsa -aes256 -out customerCA.key 2048
+```
+
+## Generate CA Cert
+```
+openssl req -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
+```
+
+## Generate HSM Cert
+```
+openssl x509 -req -days 3652 -in ClusterCsr.csr \
+  -CA customerCA.crt -CAkey customerCA.key -CAcreateserial \
+  -out CustomerHsmCertificate.crt
+```
+
+## Initialize HSM Cluster
+```
+aws cloudhsmv2 initialize-cluster --cluster-id ${HSM_CLUSTER_ID} \
+  --signed-cert file://CustomerHsmCertificate.crt \
+  --trust-anchor file://customerCA.crt
+```
+
+## Check periodically until it shows `INITIALIZED`
+```
+aws cloudhsmv2 describe-clusters \
+      --filters clusterIds=${HSM_CLUSTER_ID} \
+      --output text \
+      --query 'Clusters[].State'
+```
+
+## Finds the IP address of the CloudHSM
+```
+export HSM_IP=$(aws cloudhsmv2 describe-clusters \
+      --filters clusterIds=${HSM_CLUSTER_ID} \
+      --query 'Clusters[].Hsms[] .EniIp' | jq -r .[])
+```
+
+## Install the HSM Client
+```
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client_latest_u18.04_amd64.deb
+sudo apt install ./cloudhsm-client_latest_u18.04_amd64.deb -y
+sudo /opt/cloudhsm/bin/configure -a $HSM_IP
+sudo mv customerCA.crt /opt/cloudhsm/etc/customerCA.crt
+```
+
+## Configure HSM User
+```
+/opt/cloudhsm/bin/cloudhsm_mgmt_util /opt/cloudhsm/etc/cloudhsm_mgmt_util.cfg
+```
+```
+loginHSM PRECO admin password
+```
+```
+changePswd PRECO admin hashivault
+```
+```
+logoutHSM
+```
+```
+loginHSM CO admin hashivault
+```
+```
+createUser CU vault Password1
+```
+```
+quit
+```
+
+## Install PKCS #11 Library
+```
+sudo service cloudhsm-client start
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client-pkcs11_latest_u18.04_amd64.deb
+sudo apt install ./cloudhsm-client-pkcs11_latest_u18.04_amd64.deb -y
+```
+
+## 
 ```
 ./install_vault_hsm.sh
-source ~/.bashrc
 ```

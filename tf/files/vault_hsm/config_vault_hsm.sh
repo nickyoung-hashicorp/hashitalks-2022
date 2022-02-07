@@ -10,12 +10,9 @@ export AWS_DEFAULT_REGION=us-west-2
 aws cloudhsmv2 describe-clusters --filters clusterIds=${HSM_CLUSTER_ID} \
   --output text --query 'Clusters[].Certificates.ClusterCsr' > ClusterCsr.csr
 
-# openssl genrsa -aes256 -out customerCA.key 2048
-openssl genrsa -aes256 -out customerCA.key -passout pass:hashitalks 2048
+openssl genrsa -aes256 -out customerCA.key 2048
 
-
-# openssl req -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
-openssl req -passout pass:hashitalks -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
+openssl req -new -x509 -days 3652 -key customerCA.key -out customerCA.crt
 
 openssl x509 -req -days 3652 -in ClusterCsr.csr \
   -CA customerCA.crt -CAkey customerCA.key -CAcreateserial \
@@ -35,6 +32,7 @@ aws cloudhsmv2 describe-clusters \
 export HSM_IP=$(aws cloudhsmv2 describe-clusters \
       --filters clusterIds=${HSM_CLUSTER_ID} \
       --query 'Clusters[].Hsms[] .EniIp' | jq -r .[])
+
 
 wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client_latest_u18.04_amd64.deb
 
