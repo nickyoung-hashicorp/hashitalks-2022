@@ -194,7 +194,7 @@ aws cloudhsmv2 initialize-cluster --cluster-id ${HSM_CLUSTER_ID} \
 
 ## Check periodically until it shows `INITIALIZED`
 ```
-aws cloudhsmv2 describe-clusters \
+watch aws cloudhsmv2 describe-clusters \
       --filters clusterIds=${HSM_CLUSTER_ID} \
       --output text \
       --query 'Clusters[].State'
@@ -245,7 +245,7 @@ wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm
 sudo apt install ./cloudhsm-client-pkcs11_latest_u18.04_amd64.deb -y
 ```
 
-## 
+##
 ```
 ./install_vault_hsm.sh
 ```
