@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
 sudo apt update -y
-sudo apt install awscli -y
+sudo apt install awscli jq -y
 
 export HSM_CLUSTER_ID=$(cat output.txt | jq -r .hsm_cluster_id.value)
 export AWS_DEFAULT_REGION=us-west-2
-export AWS_ACCESS_KEY_ID=$(cat access_key.txt)
-export AWS_SECRET_ACCESS_KEY=$(cat secret_key.txt)
 
 
 aws cloudhsmv2 describe-clusters --filters clusterIds=${HSM_CLUSTER_ID} \
