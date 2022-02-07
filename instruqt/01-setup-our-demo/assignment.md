@@ -200,7 +200,7 @@ watch aws cloudhsmv2 describe-clusters \
       --query 'Clusters[].State'
 ```
 
-## Finds the IP address of the CloudHSM
+## Find and Save the IP address of the CloudHSM
 ```
 export HSM_IP=$(aws cloudhsmv2 describe-clusters \
       --filters clusterIds=${HSM_CLUSTER_ID} \
@@ -211,6 +211,8 @@ export HSM_IP=$(aws cloudhsmv2 describe-clusters \
 ```
 wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client_latest_u18.04_amd64.deb
 sudo apt install ./cloudhsm-client_latest_u18.04_amd64.deb -y
+```
+```
 sudo /opt/cloudhsm/bin/configure -a $HSM_IP
 sudo mv customerCA.crt /opt/cloudhsm/etc/customerCA.crt
 ```
@@ -245,7 +247,14 @@ wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm
 sudo apt install ./cloudhsm-client-pkcs11_latest_u18.04_amd64.deb -y
 ```
 
-##
+## Install Vault Enterprise with HSM Integration
 ```
 ./install_vault_hsm.sh
+```
+
+## Initialize and Unseal Vault Enterprise with HSM Integration
+```
+echo 'export VAULT_ADDR="http://127.0.0.1:8200"' >> ~/.bashrc
+source ~/.bashrc
+./run_vault_hsm.sh
 ```
