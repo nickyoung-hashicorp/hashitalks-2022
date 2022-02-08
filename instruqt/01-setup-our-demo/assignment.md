@@ -36,8 +36,8 @@ difficulty: basic
 timelimit: 28800
 ---
 
-# Deploy Infrastructure
-=======================
+Deploy Infrastructure
+=====================
 
 ## Provision Infrastructure
 ```
@@ -58,8 +58,8 @@ echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
 scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-# Vault OSS + DynamoDB
-=======================
+Vault OSS + DynamoDB
+====================
 Navigate to the `Vault OSS with DynamoDB` tab.
 
 ## SSH to Vault OSS Node
@@ -103,8 +103,8 @@ scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubu
 sudo systemctl stop vault
 ```
 
-# Vault Enterprise with Integrated Storage
-==========================================
+Vault Enterprise with Integrated Storage
+========================================
 Navigate to the `Vault Enterprise` tab.
 
 ## SSH to Vault Enterprise Node
@@ -134,8 +134,8 @@ source ~/.bashrc
 ./test_vault_ent.sh
 ```
 
-# Vault Enterprise with HSM Integration
-=======================================
+Vault Enterprise with HSM Integration
+=====================================
 Navigate to the `Vault Enterprise with HSM` tab.
 
 ## SSH to Vault HSM Node
