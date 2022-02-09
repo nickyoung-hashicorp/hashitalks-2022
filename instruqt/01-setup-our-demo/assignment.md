@@ -112,31 +112,6 @@ scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat o
 scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-Start Demo
-==========
-## Test Vault Responses
-```
-./test_vault.sh
-```
-
-## Stop Vault Service
-```
-sudo systemctl stop vault
-```
-
-## Take a DynamoDB Backup and Store as a Variable
-```
-BACKUP_ARN=$(aws dynamodb create-backup \
-    --table-name vault-backend \
-    --backup-name hashitalks-dynamo-backup | jq -r '.BackupDetails.BackupArn')
-```
-
-## Check the Status of the Backup, looking for `AVAILABLE`
-```
-aws dynamodb describe-backup \
-    --backup-arn $BACKUP_ARN | jq '.BackupDescription.BackupDetails.BackupStatus'
-```
-
 # Navigate to the `Vault Enterprise` tab.
 
 ## SSH to Vault Enterprise Node
@@ -148,22 +123,6 @@ ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value')
 ```
 chmod +x *.sh
 ./install_vault_ent.sh
-```
-
-## Migrate Vault OSS Data and Start Vault Enterprise Service
-```
-source ~/.bashrc
-./migrate_data.sh
-```
-
-## Unseal Vault Ent Node with Original Unseal Key
-```
-./unseal_vault_ent.sh
-```
-
-## Login with Original Root Token, then Validate
-```
-./test_vault_ent.sh
 ```
 
 # Navigate to the `Vault Enterprise with HSM` tab.
@@ -180,11 +139,11 @@ chmod +x *.sh
 source ~/.bashrc
 ```
 
-## Install awscli
+<!-- ## Install awscli
 ```
 sudo apt update -y
 sudo apt install awscli jq -y
-```
+``` -->
 
 ## Export Environment Variables
 ```
@@ -281,6 +240,47 @@ sudo apt install ./cloudhsm-client-pkcs11_latest_u18.04_amd64.deb -y
 echo 'export VAULT_ADDR="http://127.0.0.1:8200"' >> ~/.bashrc
 source ~/.bashrc
 ./run_vault_hsm.sh
+```
+
+Start Demo
+==========
+## Test Vault Responses
+```
+./test_vault.sh
+```
+
+## Stop Vault Service
+```
+sudo systemctl stop vault
+```
+
+## Take a DynamoDB Backup and Store as a Variable
+```
+BACKUP_ARN=$(aws dynamodb create-backup \
+    --table-name vault-backend \
+    --backup-name hashitalks-dynamo-backup | jq -r '.BackupDetails.BackupArn')
+```
+
+## Check the Status of the Backup, looking for `AVAILABLE`
+```
+aws dynamodb describe-backup \
+    --backup-arn $BACKUP_ARN | jq '.BackupDescription.BackupDetails.BackupStatus'
+```
+
+## Migrate Vault OSS Data and Start Vault Enterprise Service
+```
+source ~/.bashrc
+./migrate_data.sh
+```
+
+## Unseal Vault Ent Node with Original Unseal Key
+```
+./unseal_vault_ent.sh
+```
+
+## Login with Original Root Token, then Validate
+```
+./test_vault_ent.sh
 ```
 
 Setup Vault Enterprise DR Replication
