@@ -198,7 +198,7 @@ resource "null_resource" "configure-vault" {
     inline = [
       "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
       "sudo apt update -y",
-      "sudo apt install jq unzip -y",
+      "sudo apt install awscli jq unzip -y",
     ]
 
     connection {

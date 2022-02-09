@@ -39,11 +39,8 @@ sleep 1
 vault policy list
 sleep 2
 
-tput setaf 2; echo "TEST VAULT POLICY WITH USERPASS"
-tput setaf 2; echo "================="
-sleep 1
-tput setaf 2; echo "LOGIN WITH USERPASS AUTH METHOD"
-tput setaf 2; echo "==============================="
+tput setaf 2; echo "TEST VAULT POLICY WITH USERPASS AUTH METHOD"
+tput setaf 2; echo "==========================================="
 sleep 1
 vault login -method=userpass \
     username=nickyoung \
@@ -59,4 +56,4 @@ tput setaf 2; echo "==================="
 sleep 1
 vault kv get kv/hashitalks-speaker
 sleep 2
-tput setaf 2; echo "TESTS COMPLETE!"
+tput setaf 6; echo "TESTS COMPLETE!"

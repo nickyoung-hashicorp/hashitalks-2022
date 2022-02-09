@@ -53,13 +53,13 @@ scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r 
 
 ## Copy Files to Vault Enterprise Node
 ```
-scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
+echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
+echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
+scp -i privateKey.pem output.txt privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
 ```
 
 ## Save AWS Credentials to Vault HSM Node
 ```
-echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
-echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
 scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
@@ -95,6 +95,11 @@ vault status
 ./config_vault.sh
 ```
 
+## Validate Vault Responses
+```
+./test_vault_oss.sh
+```
+
 ## Copy files from Vault OSS to Vault Enterprise and Vault HSM Node
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
@@ -107,6 +112,20 @@ scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubu
 ```
 sudo systemctl stop vault
 ```
+
+## Take a DynamoDB Backup and Store as a Variable
+```
+BACKUP_ARN=$(aws dynamodb create-backup \
+    --table-name vault-backend \
+    --backup-name hashitalks-dynamo-backup | jq -r '.BackupDetails.BackupArn')
+```
+
+## Check the Status of the Backup, looking for `AVAILABLE`
+```
+aws dynamodb describe-backup \
+    --backup-arn $BACKUP_ARN | jq '.BackupDescription.BackupDetails.BackupStatus'
+```
+
 
 Vault Enterprise with Integrated Storage
 ========================================
@@ -264,6 +283,7 @@ Navigate to the `Vault Enterprise` tab.
 
 ## Setup Vault Enterprise as the DR Primary Cluster
 ```
+vault login $(jq -r .root_token < vault_init.json)
 vault write -f /sys/replication/dr/primary/enable
 sleep 5
 vault write -format=json /sys/replication/dr/primary/secondary-token id="vault-enterprise-hsm" | jq -r '.wrap_info .token' > primary_dr_token.txt
@@ -325,20 +345,25 @@ DR_OPERATION_TOKEN=$(vault operator generate-root -dr-token -otp=$DR_OTP -decode
 ```
 
 Navigate to the `Vault Enterprise` tab.
+## Check the Cluster's mode is `"primary"`
+```
+vault read -format=json sys/replication/status | jq '.data.dr'
+```
+
 ## Disable Replication on Vault Enterprise (DR Primary)
 ```
 vault write -f /sys/replication/dr/primary/disable
 ```
 
-## Check Replication Status, looking for `"mode": "disabled"`
+## Check again, where the Cluster's mode is now `"disabled"`
 ```
-curl -s http://127.0.0.1:8200/v1/sys/replication/status | jq '.data.dr'
+vault read -format=json sys/replication/status | jq '.data.dr'
 ```
 
 Navigate to the `Vault Enterprise with HSM` tab.
 ## Check Replication Status, looking for `"connection_status": "disconnected"`
 ```
-curl -s http://127.0.0.1:8200/v1/sys/replication/status | jq '.data.dr.primaries'
+vault read -format=json sys/replication/status | jq '.data.dr.primaries'
 ```
 
 ## Promote Vault Enterprise with HSM (DR Secondary)
@@ -346,9 +371,9 @@ curl -s http://127.0.0.1:8200/v1/sys/replication/status | jq '.data.dr.primaries
 vault write -f /sys/replication/dr/secondary/promote dr_operation_token=${DR_OPERATION_TOKEN}
 ```
 
-## Check Replication Status, looking for `"primary"`
+## Check Replication Status, where the mode is `"primary"`
 ```
-vault read -format=json sys/replication/status | jq '.data.dr.mode'
+vault read -format=json sys/replication/status | jq '.data.dr'
 ```
 
 ## Test Vault Login with Original Root Token

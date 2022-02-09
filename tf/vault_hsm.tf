@@ -15,6 +15,7 @@ resource "aws_instance" "vault-hsm" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.vault-a.id
   vpc_security_group_ids      = [aws_security_group.vault.id, aws_cloudhsm_v2_cluster.cloudhsm_v2_cluster.security_group_id]
+  iam_instance_profile        = aws_iam_instance_profile.vault-hsm-instance-profile.name
 
   tags = {
     Name          = "${var.prefix}-vault-hsm-instance"
@@ -44,7 +45,7 @@ resource "null_resource" "configure-vault-hsm" {
     inline = [
       "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
       "sudo apt update -y",
-      "sudo apt install jq unzip -y",
+      "sudo apt install awscli jq unzip -y",
     ]
 
     connection {
@@ -69,4 +70,70 @@ resource "aws_cloudhsm_v2_cluster" "cloudhsm_v2_cluster" {
 resource "aws_cloudhsm_v2_hsm" "cloudhsm_v2_hsm" {
   cluster_id        = aws_cloudhsm_v2_cluster.cloudhsm_v2_cluster.cluster_id
   subnet_id = aws_subnet.vault-a.id
+}
+
+# Creates IAM Policy to access provisioned CloudHSM
+resource "aws_iam_policy" "vault-hsm-policy" {
+  name        = "${var.prefix}-vault-hsm-policy"
+  description = "Access CloudHSM from Vault running in EC2"
+
+  policy = <<EOF
+{
+   "Version":"2012-10-17",
+   "Statement":{
+      "Effect":"Allow",
+      "Action":[
+         "cloudhsm:*",
+         "ec2:CreateNetworkInterface",
+         "ec2:DescribeNetworkInterfaces",
+         "ec2:DescribeNetworkInterfaceAttribute",
+         "ec2:DetachNetworkInterface",
+         "ec2:DeleteNetworkInterface",
+         "ec2:CreateSecurityGroup",
+         "ec2:AuthorizeSecurityGroupIngress",
+         "ec2:AuthorizeSecurityGroupEgress",
+         "ec2:RevokeSecurityGroupEgress",
+         "ec2:DescribeSecurityGroups",
+         "ec2:DeleteSecurityGroup",
+         "ec2:CreateTags",
+         "ec2:DescribeVpcs",
+         "ec2:DescribeSubnets",
+         "iam:CreateServiceLinkedRole"
+      ],
+      "Resource":"*"
+   }
+}
+EOF
+}
+
+# Creates Role, referencing "vault-hsm-policy"
+resource "aws_iam_role" "vault-hsm-role" {
+  name = "${var.prefix}-vault-hsm-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+# Attaches "vault-hsm-policy" to "vault-hsm-role"
+resource "aws_iam_role_policy_attachment" "vault-hsm-policy-attach" {
+  role       = aws_iam_role.vault-hsm-role.name
+  policy_arn = aws_iam_policy.vault-hsm-policy.arn
+}
+
+resource "aws_iam_instance_profile" "vault-hsm-instance-profile" {
+  name = "${var.prefix}-vault-hsm-instance-profile"
+  role = aws_iam_role.vault-hsm-role.name
 }
