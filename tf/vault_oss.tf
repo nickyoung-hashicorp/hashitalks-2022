@@ -164,6 +164,7 @@ resource "aws_instance" "vault" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.vault-a.id
   vpc_security_group_ids      = [aws_security_group.vault.id]
+  iam_instance_profile        = aws_iam_instance_profile.vault-dynamodb-instance-profile.name
 
   tags = {
     Name = "${var.prefix}-vault-instance"

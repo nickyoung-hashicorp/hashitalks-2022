@@ -15,7 +15,6 @@ resource "aws_instance" "vault-hsm" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.vault-a.id
   vpc_security_group_ids      = [aws_security_group.vault.id, aws_cloudhsm_v2_cluster.cloudhsm_v2_cluster.security_group_id]
-  iam_instance_profile        = aws_iam_instance_profile.vault-hsm-instance-profile.name
 
   tags = {
     Name          = "${var.prefix}-vault-hsm-instance"
