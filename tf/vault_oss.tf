@@ -198,11 +198,11 @@ resource "null_resource" "configure-vault" {
     inline = [
       "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
       "chmod +x *.sh",
-      "./install_vault.sh",
+      "~/install_vault.sh",
       "source ~/.bashrc",
       "vault status",
-      "./run_vault.sh",
-      "./config_vault.sh",
+      "~/run_vault.sh",
+      "~/config_vault.sh",
       "scp -i privateKey.pem ~/vault_init.json ~/ciphertext.txt ~/output.txt ~/lease_id.txt ubuntu@$(cat ~/output.txt | jq -r '.vault_ent_ip.value'):~",
       "scp -i privateKey.pem ~/vault_init.json ~/ciphertext.txt ~/output.txt ~/lease_id.txt ubuntu@$(cat ~/output.txt | jq -r '.vault_hsm_ip.value'):~",
     ]

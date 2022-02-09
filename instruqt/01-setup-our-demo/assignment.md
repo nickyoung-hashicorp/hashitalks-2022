@@ -72,7 +72,7 @@ Navigate to the `Vault OSS with DynamoDB` tab.
 ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value')
 ```
 
-<!-- ## Configure and Start Vault Service
+## Configure and Start Vault Service
 ```
 chmod +x *.sh
 ./install_vault.sh
@@ -101,7 +101,7 @@ scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubu
 ```
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
-``` -->
+```
 
 ## Stop Vault Service
 ```
