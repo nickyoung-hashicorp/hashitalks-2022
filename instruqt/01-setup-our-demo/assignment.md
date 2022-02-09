@@ -45,7 +45,13 @@ terraform init
 terraform apply -auto-approve
 ```
 
-## Save Output, Copy to Vault OSS Node, and Access by SSH
+## Save Output
+```
+chmod +x *.sh
+./save_output.sh
+```
+
+<!-- ## Save Output, Copy Files to Vault OSS and Enterprise Nodes, and Access by SSH
 ```
 terraform output -json > output.txt
 scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value'):~
@@ -55,12 +61,12 @@ scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r 
 ```
 echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
 echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
-scp -i privateKey.pem output.txt privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
-```
+scp -i privateKey.pem output.txt privateKey.pem access_key.txt secret_key.txt output.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
+``` -->
 
 <!-- ## Save AWS Credentials to Vault HSM Node
 ```
-scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
+scp -i privateKey.pem access_key.txt secret_key.txt output.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ``` -->
 
 # Navigate to the `Vault OSS with DynamoDB` tab.
@@ -95,15 +101,22 @@ vault status
 
 ## Validate Vault Responses
 ```
-./test_vault_oss.sh
+./test_vault.sh
 ```
 
 ## Copy files from Vault OSS to Vault Enterprise and Vault HSM Node
 ```
-scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
+scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
 ```
 ```
-scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
+scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
+```
+
+Start Demo
+==========
+## Test Vault Responses
+```
+./test_vault.sh
 ```
 
 ## Stop Vault Service
