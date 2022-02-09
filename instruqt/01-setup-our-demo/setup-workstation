@@ -39,12 +39,12 @@ nohup terraform apply -auto-approve
 
 # Save Terraform output and copy it to Vault nodes
 sudo tee "~/save_output.sh" > /dev/null <<SAVEOUTPUT
-terraform output -json > output.txt
-scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ip.value'):~
-scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value'):~
-echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
-echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
-scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
+terraform output -json > ~/hashitalks-2022/tf/output.txt
+scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat ~/output.txt | jq -r '.vault_ip.value'):~
+scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat ~/output.txt | jq -r '.vault_ent_ip.value'):~
+echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> ~/access_key.txt
+echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> ~/secret_key.txt
+scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat ~/output.txt | jq -r '.vault_hsm_ip.value'):~
 SAVEOUTPUT
 
 chmod +x *.sh
