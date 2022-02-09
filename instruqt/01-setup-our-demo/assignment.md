@@ -39,7 +39,7 @@ timelimit: 28800
 Deploy Infrastructure
 =====================
 
-## Provision Infrastructure
+<!-- ## Provision Infrastructure
 ```
 terraform init
 terraform apply -auto-approve
@@ -101,7 +101,7 @@ scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubu
 ```
 ```
 scp -i privateKey.pem vault_init.json ciphertext.txt output.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
-```
+``` -->
 
 ## Stop Vault Service
 ```
