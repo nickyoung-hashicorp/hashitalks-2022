@@ -39,7 +39,24 @@ sleep 1
 vault policy list
 sleep 2
 
-tput setaf 2; echo "TEST VAULT POLICY"
+tput setaf 2; echo "TEST VAULT POLICY WITH USERPASS"
 tput setaf 2; echo "================="
 sleep 1
-export VAULT_TOKEN="$(vault token create -field token -policy=hashitalks-policy)"
+tput setaf 2; echo "LOGIN WITH USERPASS AUTH METHOD"
+tput setaf 2; echo "==============================="
+sleep 1
+vault login -method=userpass \
+    username=nickyoung \
+    password=hashitalks
+sleep 1
+tput setaf 2; echo "TEST SUCCESSFUL KV GET"
+tput setaf 2; echo "======================"
+sleep 1
+vault kv get kv/hashitalks-secret
+sleep 1
+tput setaf 2; echo "TEST FAILING KV GET"
+tput setaf 2; echo "==================="
+sleep 1
+vault kv get kv/hashitalks-speaker
+sleep 2
+tput setaf 2; echo "TESTS COMPLETE!"
