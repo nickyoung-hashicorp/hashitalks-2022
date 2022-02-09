@@ -39,7 +39,7 @@ timelimit: 28800
 Deploy Infrastructure
 =====================
 
-<!-- ## Provision Infrastructure
+## Provision Infrastructure
 ```
 terraform init
 terraform apply -auto-approve
@@ -61,7 +61,7 @@ scp -i privateKey.pem output.txt privateKey.pem ubuntu@$(cat output.txt | jq -r 
 echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> access_key.txt
 echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> secret_key.txt
 scp -i privateKey.pem access_key.txt secret_key.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
-``` -->
+```
 
 Vault OSS + DynamoDB
 ====================

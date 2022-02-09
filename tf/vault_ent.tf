@@ -40,4 +40,18 @@ resource "null_resource" "configure-vault-ent" {
       host        = aws_eip.vault-ent.public_ip
     }
   }
+
+    provisioner "remote-exec" {
+    inline = [
+      "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
+      "sudo apt update -y",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = tls_private_key.vault.private_key_pem
+      host        = aws_eip.vault-ent.public_ip
+    }
+  }
 }
