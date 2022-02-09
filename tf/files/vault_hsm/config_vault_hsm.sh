@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-sudo apt update -y
-sudo apt install awscli jq -y
+# sudo apt update -y
+# sudo apt install awscli jq -y
 
 export HSM_CLUSTER_ID=$(cat output.txt | jq -r .hsm_cluster_id.value)
 export AWS_DEFAULT_REGION=us-west-2

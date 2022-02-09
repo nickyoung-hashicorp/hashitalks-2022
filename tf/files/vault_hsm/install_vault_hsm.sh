@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # echo "Running updates and installing unzip, jq"
-sudo apt update -y
-sudo apt install unzip jq -y
+# sudo apt update -y
+# sudo apt install unzip jq -y
 
 # Setup Vault Enterprise+HSM
 set -e
