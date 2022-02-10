@@ -264,7 +264,8 @@ resource "aws_iam_policy" "vault-dynamodb-policy" {
         "dynamodb:GetItem",
         "dynamodb:Query",
         "dynamodb:Scan",
-        "dynamodb:BatchWriteItem"
+        "dynamodb:BatchWriteItem",
+        "dynamodb:DescribeBackup"
       ],
       "Effect": "Allow",
       "Resource": [ "arn:aws:dynamodb:*:*:table/vault-backend" ]

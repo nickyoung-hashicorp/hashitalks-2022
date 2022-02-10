@@ -51,7 +51,7 @@ chmod +x *.sh
 ./save_output.sh
 ```
 
-# Navigate to the `Vault OSS with DynamoDB` tab.
+## Navigate to the `Vault OSS with DynamoDB` tab.
 
 ## SSH to Vault OSS Node
 ```
@@ -94,7 +94,7 @@ scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat o
 scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-# Navigate to the `Vault Enterprise` tab.
+## Navigate to the `Vault Enterprise` tab.
 
 ## SSH to Vault Enterprise Node
 ```
@@ -107,7 +107,7 @@ chmod +x *.sh
 ./install_vault_ent.sh
 ```
 
-# Navigate to the `Vault Enterprise with HSM` tab.
+## Navigate to the `Vault Enterprise with HSM` tab.
 
 ## SSH to Vault HSM Node
 ```
@@ -226,6 +226,8 @@ source ~/.bashrc
 
 Start Demo
 ==========
+## Navigate to the `Vault OSS with DynamoDB` tab.
+
 ## Test Vault Responses
 ```
 ./test_vault.sh
@@ -268,7 +270,7 @@ source ~/.bashrc
 
 Setup Vault Enterprise DR Replication
 =====================================
-# Navigate to the `Vault Enterprise` tab.
+## Navigate to the `Vault Enterprise` tab.
 
 ## Setup Vault Enterprise as the DR Primary Cluster
 ```
@@ -279,7 +281,7 @@ vault write -format=json /sys/replication/dr/primary/secondary-token id="vault-e
 scp -i privateKey.pem primary_dr_token.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-# Navigate to the `Vault Enterprise with HSM` tab.
+## Navigate to the `Vault Enterprise with HSM` tab.
 
 ## Enable Vault Enterprise with HSM Integration as the DR Secondary Cluster
 ```

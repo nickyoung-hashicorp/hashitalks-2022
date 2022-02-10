@@ -19,7 +19,7 @@ tput setaf 3; echo "Encrypting plaintext \"Welcome to HashiTalks 2022!\""
 sleep 1
 tput setaf 3; echo "into ciphertext $(cat ciphertext.txt | jq -r '.data.ciphertext')"
 sleep 1
-tput setup 7; echo "And decrypting ciphertext back to plaintext"
+tput setaf 7; echo "And decrypting ciphertext back to plaintext"
 vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
 sleep 2
 
