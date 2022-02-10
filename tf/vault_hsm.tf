@@ -25,9 +25,9 @@ resource "aws_instance" "vault-hsm" {
 resource "null_resource" "configure-vault-hsm" {
   depends_on = [aws_eip_association.vault-hsm]
 
-  triggers = {
-    build_number = timestamp()
-  }
+  # triggers = {
+  #   build_number = timestamp()
+  # }
 
   provisioner "file" {
     source      = "./files/vault_hsm/"
