@@ -152,6 +152,7 @@ SYSDSERVICE
 sudo sed -i "s|VAULTBINDIR|$VAULT_DIR|g" /etc/systemd/system/vault.service
 
 echo 'export VAULT_ADDR="http://127.0.0.1:8200"' >> ~/.bashrc
+echo 'export AWS_DEFAULT_REGION=us-west-2' >> ~/.bashrc
 
 source ~/.bashrc
 

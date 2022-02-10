@@ -225,9 +225,15 @@ Start Demo
 ==========
 ## Navigate to the `OSS` tab.
 
+## Show Test Script
+```
+vim test_vault.sh
+```
+
+
 ## Test Vault Responses
 ```
-./test_vault.sh
+test_vault.sh
 ```
 
 ## Stop Vault Service
@@ -237,7 +243,6 @@ sudo systemctl stop vault
 
 ## Take a DynamoDB Backup and Store as a Variable
 ```
-export AWS_DEFAULT_REGION=us-west-2
 BACKUP_ARN=$(aws dynamodb create-backup \
     --table-name vault-backend \
     --backup-name hashitalks-dynamo-backup | jq -r '.BackupDetails.BackupArn')
@@ -251,19 +256,25 @@ aws dynamodb describe-backup \
 
 ## Navigate to the `ENT` tab.
 
+## Show Migrate Script
+```
+vim migrate_data.sh
+```
+
+
 ## Migrate Vault OSS Data and Start Vault Enterprise Service
 ```
-./migrate_data.sh
+migrate_data.sh
 ```
 
 ## Unseal Vault Ent Node with Original Unseal Key
 ```
-./unseal_vault_ent.sh
+unseal_vault_ent.sh
 ```
 
 ## Login with Original Root Token, then Validate
 ```
-./test_vault_ent.sh
+test_vault_ent.sh
 ```
 
 ## With Testing Complete, Setup DR Replication
@@ -272,8 +283,15 @@ aws dynamodb describe-backup \
 ```
 vault login $(jq -r .root_token < vault_init.json)
 vault write -f /sys/replication/dr/primary/enable
-sleep 5
+```
+
+## Generate DR Token
+```
 vault write -format=json /sys/replication/dr/primary/secondary-token id="vault-enterprise-hsm" | jq -r '.wrap_info .token' > primary_dr_token.txt
+```
+
+## Copy DR Token to Vault with HSM
+```
 scp -i privateKey.pem primary_dr_token.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
@@ -289,7 +307,7 @@ vault write /sys/replication/dr/secondary/enable token=$(cat primary_dr_token.tx
 vault read -format=json sys/replication/status | jq '.data.dr.state'
 ```
 
-Navigate to the `ENT` tab.
+## Navigate to the `ENT` tab.
 
 ## Check Replication State, Looking for `"running"`
 ```
@@ -307,7 +325,7 @@ vault kv get kv/hashitalks-secret
 vault read -format=json sys/replication/status | jq '.data.dr.state'
 ```
 
-Navigate to the `HSM` tab.
+## Navigate to the `HSM` tab.
 
 ## Check Replication State, Looking for `"stream-wals"`
 ```
@@ -332,7 +350,8 @@ ENCODED_TOKEN=$(vault operator generate-root -dr-token -nonce=$NONCE $PRIMARY_UN
 DR_OPERATION_TOKEN=$(vault operator generate-root -dr-token -otp=$DR_OTP -decode=$ENCODED_TOKEN)
 ```
 
-Navigate to the `ENT` tab.
+## Navigate to the `ENT` tab.
+
 ## Check the Cluster's mode is `"primary"`
 ```
 vault read -format=json sys/replication/status | jq '.data.dr'
@@ -348,7 +367,8 @@ vault write -f /sys/replication/dr/primary/disable
 vault read -format=json sys/replication/status | jq '.data.dr'
 ```
 
-Navigate to the `HSM` tab.
+## Navigate to the `HSM` tab.
+
 ## Check Replication Status, looking for `"connection_status": "disconnected"`
 ```
 vault read -format=json sys/replication/status | jq '.data.dr.primaries'
@@ -371,5 +391,5 @@ vault login $(jq -r .root_token < vault_init.json)
 
 ## Final Testing
 ```
-./test_vault_hsm.sh
+test_vault_hsm.sh
 ```
