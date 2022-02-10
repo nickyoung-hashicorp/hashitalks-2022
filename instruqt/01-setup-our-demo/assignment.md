@@ -51,7 +51,7 @@ chmod +x *.sh
 ./save_output.sh
 ```
 
-Setup `Vault OSS with DynamoDB`
+Setup Vault OSS with DynamoDB
 ===============================
 ## Select the `OSS` tab
 
@@ -87,7 +87,7 @@ scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat o
 scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-Setup `Vault Enterprise`
+Setup Vault Enterprise
 ===============================
 ## Navigate to the `ENT` tab.
 
@@ -103,7 +103,7 @@ chmod +x *.sh
 source ~/.bashrc
 ```
 
-Setup `Vault Enterprise with HSM`
+Setup Vault Enterprise with HSM
 =================================
 ## Navigate to the `HSM` tab.
 
