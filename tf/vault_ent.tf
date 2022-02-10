@@ -44,7 +44,6 @@ resource "null_resource" "configure-vault-ent" {
     provisioner "remote-exec" {
     inline = [
       "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
-      "sudo apt update -y",
     ]
 
     connection {

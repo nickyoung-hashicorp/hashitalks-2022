@@ -4,7 +4,7 @@ tput setaf 3; echo "CONFIGURING KEY-VALUE SECRETS ENGINE"
 tput setaf 3; echo "===================================="
 sleep 1
 vault secrets enable -version=2 kv
-vault kv put kv/hashitalks-secret year=2022 date=02-17-2022
+vault kv put kv/hashitalks-secret event=HashiTalks topics=Vault date=02-17-2022
 vault kv put kv/hashitalks-speaker name="Nick Young"
 vault kv get kv/hashitalks-secret
 
@@ -15,11 +15,13 @@ vault secrets enable transit
 vault write -f transit/keys/hashitalks
 vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "Welcome to HashiTalks 2022!")
 vault write transit/encrypt/hashitalks plaintext=$(base64 <<< "Welcome to HashiTalks 2022!") -format=json > ciphertext.txt
-tput setaf 3; echo "Encrypting plaintext \"Welcome to HashiTalks 2022!\""
+tput setaf 3; echo "Encrypting plaintext: \"Welcome to HashiTalks 2022!\""
 sleep 1
-tput setaf 3; echo "into ciphertext $(cat ciphertext.txt | jq -r '.data.ciphertext')"
+tput setaf 3; echo "into ciphertext: $(cat ciphertext.txt | jq -r '.data.ciphertext')"
 sleep 1
-tput setaf 7; echo "And decrypting ciphertext back to plaintext"
+tput setaf 3; echo "And decrypting ciphertext back to plaintext"
+sleep 1
+tput setaf 3; echo "vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode"
 vault write -field=plaintext transit/decrypt/hashitalks ciphertext=$(cat ciphertext.txt | jq -r '.data.ciphertext') | base64 --decode
 sleep 2
 
