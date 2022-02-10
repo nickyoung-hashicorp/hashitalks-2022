@@ -256,6 +256,7 @@ sudo systemctl stop vault
 
 ## Take a DynamoDB Backup and Store as a Variable
 ```
+export AWS_DEFAULT_REGION=us-west-2
 BACKUP_ARN=$(aws dynamodb create-backup \
     --table-name vault-backend \
     --backup-name hashitalks-dynamo-backup | jq -r '.BackupDetails.BackupArn')
