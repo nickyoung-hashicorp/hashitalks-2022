@@ -198,7 +198,6 @@ resource "null_resource" "configure-vault" {
     inline = [
       "sudo sed -i 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config",
       "sudo apt update -y",
-      "sudo apt install awscli jq unzip -y",
     ]
 
     connection {
@@ -256,7 +255,16 @@ resource "aws_iam_policy" "vault-dynamodb-policy" {
         "dynamodb:Query",
         "dynamodb:UpdateItem",
         "dynamodb:Scan",
-        "dynamodb:DescribeTable"
+        "dynamodb:DescribeTable",
+        "dynamodb:CreateBackup",
+        "dynamodb:RestoreTableFromBackup",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:BatchWriteItem"
       ],
       "Effect": "Allow",
       "Resource": [ "arn:aws:dynamodb:*:*:table/vault-backend" ]

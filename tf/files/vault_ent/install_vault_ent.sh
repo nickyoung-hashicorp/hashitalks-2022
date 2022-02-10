@@ -2,7 +2,7 @@
 
 # echo "Running updates and installing unzip, jq"
 # sudo apt update -y
-# sudo apt install unzip jq -y
+sudo apt install unzip jq -y
 
 echo "Installing Vault Enterprise"
 # Setup vault enterprise as server
