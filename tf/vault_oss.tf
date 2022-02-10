@@ -267,7 +267,7 @@ resource "aws_iam_policy" "vault-dynamodb-policy" {
         "dynamodb:DescribeBackup"
       ],
       "Effect": "Allow",
-      "Resource": [ "arn:aws:dynamodb:*:*:table/vault-backend" ]
+      "Resource": [ "arn:aws:dynamodb:*:*:table/*" ]
     }
 ]
 }
