@@ -14,13 +14,13 @@ tabs:
 - title: Workstation
   type: terminal
   hostname: workstation
-- title: Vault OSS with DynamoDB
+- title: OSS
   type: terminal
   hostname: workstation
-- title: Vault Enterprise
+- title: ENT
   type: terminal
   hostname: workstation
-- title: Vault Enterprise with HSM
+- title: HSM
   type: terminal
   hostname: workstation
 - title: Text Editor
@@ -36,8 +36,8 @@ difficulty: basic
 timelimit: 28800
 ---
 
-Deploy & Setup Infrastructure
-=====================
+Provision Infrastructure
+========================
 
 ## Provision Infrastructure
 ```
@@ -51,7 +51,9 @@ chmod +x *.sh
 ./save_output.sh
 ```
 
-## Navigate to the `Vault OSS with DynamoDB` tab.
+Setup `Vault OSS with DynamoDB`
+===============================
+## Select the `OSS` tab
 
 ## SSH to Vault OSS Node
 ```
@@ -70,19 +72,10 @@ source ~/.bashrc
 vault status
 ```
 
-## Initialize and Unseal Vault, then Login
+## Run, Configure, and Test Vault OSS
 ```
 ./run_vault.sh
-```
-
-## Enable and Configure Secret Engines
-
-```
 ./config_vault.sh
-```
-
-## Validate Vault Responses
-```
 ./test_vault.sh
 ```
 
@@ -94,7 +87,9 @@ scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat o
 scp -i privateKey.pem vault_init.json ciphertext.txt lease_id.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-## Navigate to the `Vault Enterprise` tab.
+Setup `Vault Enterprise`
+===============================
+## Navigate to the `ENT` tab.
 
 ## SSH to Vault Enterprise Node
 ```
@@ -108,7 +103,9 @@ chmod +x *.sh
 source ~/.bashrc
 ```
 
-## Navigate to the `Vault Enterprise with HSM` tab.
+Setup `Vault Enterprise with HSM`
+=================================
+## Navigate to the `HSM` tab.
 
 ## SSH to Vault HSM Node
 ```
@@ -118,7 +115,6 @@ ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value')
 ## Configure and Start Vault Service with HSM Integration
 ```
 chmod +x *.sh
-./insert_cloud_creds.sh
 source ~/.bashrc
 ```
 
@@ -221,7 +217,7 @@ source ~/.bashrc
 
 Start Demo
 ==========
-## Navigate to the `Vault OSS with DynamoDB` tab.
+## Navigate to the `OSS` tab.
 
 ## Test Vault Responses
 ```
@@ -247,7 +243,7 @@ aws dynamodb describe-backup \
     --backup-arn $BACKUP_ARN | jq '.BackupDescription.BackupDetails.BackupStatus'
 ```
 
-## Navigate to the `Vault Enterprise` tab.
+## Navigate to the `ENT` tab.
 
 ## Migrate Vault OSS Data and Start Vault Enterprise Service
 ```
@@ -275,7 +271,7 @@ vault write -format=json /sys/replication/dr/primary/secondary-token id="vault-e
 scp -i privateKey.pem primary_dr_token.txt ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value'):~
 ```
 
-## Navigate to the `Vault Enterprise with HSM` tab.
+## Navigate to the `HSM` tab.
 
 ## Enable Vault Enterprise with HSM Integration as the DR Secondary Cluster
 ```
@@ -287,7 +283,8 @@ vault write /sys/replication/dr/secondary/enable token=$(cat primary_dr_token.tx
 vault read -format=json sys/replication/status | jq '.data.dr.state'
 ```
 
-Navigate to the `Vault Enterprise` tab.
+Navigate to the `ENT` tab.
+
 ## Check Replication State, Looking for `"running"`
 ```
 vault read -format=json sys/replication/status | jq '.data.dr.state'
@@ -295,7 +292,7 @@ vault read -format=json sys/replication/status | jq '.data.dr.state'
 
 ## Write Additional KV Data
 ```
-vault kv put kv/hashitalks-secret message="Demo Complete!"
+vault kv put kv/hashitalks-secret message="HashiTalks Demo - Complete!"
 vault kv get kv/hashitalks-secret
 ```
 
@@ -304,7 +301,7 @@ vault kv get kv/hashitalks-secret
 vault read -format=json sys/replication/status | jq '.data.dr.state'
 ```
 
-Navigate to the `Vault Enterprise with HSM` tab.
+Navigate to the `HSM` tab.
 
 ## Check Replication State, Looking for `"stream-wals"`
 ```
@@ -329,7 +326,7 @@ ENCODED_TOKEN=$(vault operator generate-root -dr-token -nonce=$NONCE $PRIMARY_UN
 DR_OPERATION_TOKEN=$(vault operator generate-root -dr-token -otp=$DR_OTP -decode=$ENCODED_TOKEN)
 ```
 
-Navigate to the `Vault Enterprise` tab.
+Navigate to the `ENT` tab.
 ## Check the Cluster's mode is `"primary"`
 ```
 vault read -format=json sys/replication/status | jq '.data.dr'
@@ -345,7 +342,7 @@ vault write -f /sys/replication/dr/primary/disable
 vault read -format=json sys/replication/status | jq '.data.dr'
 ```
 
-Navigate to the `Vault Enterprise with HSM` tab.
+Navigate to the `HSM` tab.
 ## Check Replication Status, looking for `"connection_status": "disconnected"`
 ```
 vault read -format=json sys/replication/status | jq '.data.dr.primaries'
