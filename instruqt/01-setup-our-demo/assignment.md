@@ -118,6 +118,8 @@ ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_hsm_ip.value')
 ```
 sudo apt update -y
 sudo apt install awscli jq unzip -y
+```
+```
 chmod +x *.sh
 source ~/.bashrc
 ```
