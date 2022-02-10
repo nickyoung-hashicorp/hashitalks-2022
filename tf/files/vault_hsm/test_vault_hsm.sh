@@ -6,7 +6,7 @@ sleep 2
 tput setaf 168; echo "RETRIEVE KEY-VALUE"
 tput setaf 168; echo "=================="
 sleep 2
-vault kv get -version=1 kv/hashitalks-secret
+vault kv get kv/hashitalks-secret
 sleep 1
 tput setaf 168; echo "."
 sleep 1
@@ -88,7 +88,7 @@ sleep 2
 tput setaf 168; echo "TEST SUCCESSFUL KV GET"
 tput setaf 168; echo "======================"
 sleep 2
-vault kv get kv/hashitalks-secret
+vault kv get -version=1 kv/hashitalks-secret
 sleep 1
 tput setaf 168; echo "."
 sleep 1
@@ -111,8 +111,8 @@ sleep 1
 tput setaf 168; echo "RETRIEVE LATEST KEY-VALUE"
 tput setaf 168; echo "========================="
 sleep 3
-vault kv get -format=json kv/hashitalks-secret | jq '.data.data'
+vault kv get kv/hashitalks-secret
 sleep 3
 tput smso; echo "=========================================="
 tput smso; echo "TESTING VAULT ENTERPRISE WITH HSM COMPLETE"
-tput smso; echo "=========================================="
+tput smso; echo "==========================================="
