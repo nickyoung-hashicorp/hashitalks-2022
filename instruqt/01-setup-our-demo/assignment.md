@@ -105,6 +105,7 @@ ssh -i privateKey.pem ubuntu@$(cat output.txt | jq -r '.vault_ent_ip.value')
 ```
 chmod +x *.sh
 ./install_vault_ent.sh
+source ~/.bashrc
 ```
 
 ## Navigate to the `Vault Enterprise with HSM` tab.
@@ -120,12 +121,6 @@ chmod +x *.sh
 ./insert_cloud_creds.sh
 source ~/.bashrc
 ```
-
-<!-- ## Install awscli
-```
-sudo apt update -y
-sudo apt install awscli jq -y
-``` -->
 
 ## Export Environment Variables
 ```
@@ -252,9 +247,10 @@ aws dynamodb describe-backup \
     --backup-arn $BACKUP_ARN | jq '.BackupDescription.BackupDetails.BackupStatus'
 ```
 
+## Navigate to the `Vault Enterprise` tab.
+
 ## Migrate Vault OSS Data and Start Vault Enterprise Service
 ```
-source ~/.bashrc
 ./migrate_data.sh
 ```
 
@@ -268,9 +264,7 @@ source ~/.bashrc
 ./test_vault_ent.sh
 ```
 
-Setup Vault Enterprise DR Replication
-=====================================
-## Navigate to the `Vault Enterprise` tab.
+## With Testing Complete, Setup DR Replication
 
 ## Setup Vault Enterprise as the DR Primary Cluster
 ```
