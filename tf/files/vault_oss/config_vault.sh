@@ -4,7 +4,7 @@ tput setaf 3; echo "CONFIGURING KEY-VALUE SECRETS ENGINE"
 tput setaf 3; echo "===================================="
 sleep 1
 vault secrets enable -version=2 kv
-vault kv put kv/hashitalks-secret event=HashiTalks topics=Vault date=02-17-2022
+vault kv put kv/hashitalks-secret event=HashiTalks topic=Vault date=02-17-2022
 vault kv put kv/hashitalks-speaker name="Nick Young"
 vault kv get kv/hashitalks-secret
 

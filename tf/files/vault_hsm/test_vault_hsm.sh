@@ -6,7 +6,7 @@ sleep 2
 tput setaf 168; echo "RETRIEVE KEY-VALUE"
 tput setaf 168; echo "=================="
 sleep 2
-vault kv get kv/hashitalks-secret
+vault kv get -version=1 kv/hashitalks-secret
 sleep 1
 tput setaf 168; echo "."
 sleep 1
