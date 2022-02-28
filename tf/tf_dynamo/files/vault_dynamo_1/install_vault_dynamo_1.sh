@@ -9,7 +9,7 @@ echo "Installing Vault Enterprise"
 set -e
 
 # USER VARS
-VAULT_VERSION="1.9.3"
+VAULT_VERSION="1.9.3+ent"
 NODE_NAME="${1:-$(hostname -s)}"
 VAULT_DIR=/usr/local/bin
 VAULT_CONFIG_DIR=/etc/vault.d
