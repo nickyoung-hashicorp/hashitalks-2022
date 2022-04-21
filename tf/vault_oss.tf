@@ -1,8 +1,8 @@
-P,.........z### Variables ###
+### Variables ###
 
 variable "prefix" {
   description = "Prefix that will be added to all taggable resources"
-  default = "hashitalks2022"fg t5y                    t      bg                 bh  c
+  default = "hashitalks2022"
 }
 
 variable "subnet_pre2fix_a" {
