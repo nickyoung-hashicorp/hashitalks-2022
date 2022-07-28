@@ -194,11 +194,15 @@ sudo mv customerCA.crt /opt/cloudhsm/etc/customerCA.crt
 loginHSM PRECO admin password
 changePswd PRECO admin hashivault
 ```
+Press `y` then `Enter` when prompted.
+
 ```
 logoutHSM
 loginHSM CO admin hashivault
 createUser CU vault Password1
 ```
+Press `y` then `Enter` when prompted.
+
 ```
 quit
 ```
