@@ -5,7 +5,7 @@ variable "prefix" {
   default = "hashitalks2022"
 }
 
-variable "subnet_pre2fix_a" {
+variable "subnet_prefix_a" {
   description = "The address prefix to use for the subnet in availability zone a"
   default     = "10.0.1.0/24"
 }
