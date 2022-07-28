@@ -167,6 +167,7 @@ watch aws cloudhsmv2 describe-clusters \
       --output text \
       --query 'Clusters[].State'
 ```
+Press `Ctrl+C` to exit out of this watch.
 
 ## Find and Save the IP address of the CloudHSM
 ```
